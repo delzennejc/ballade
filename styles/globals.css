@@ -1,26 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&family=League+Spartan:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary-blue: #3b82f6;
+  --light-blue: #ebf4ff;
+  --text-dark: #1e293b;
+  --text-gray: #64748b;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-urbanist: "Urbanist", sans-serif;
+  --font-league: "League Spartan", sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "League Spartan", sans-serif;
+}
+
+.font-urbanist {
+  font-family: "Urbanist", sans-serif;
+}
+
+.font-league {
+  font-family: "League Spartan", sans-serif;
 }
