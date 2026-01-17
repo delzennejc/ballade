@@ -1,36 +1,38 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 const songs = [
-  "A LA CLAIRE FONTAINE",
-  "A LA UNA",
-  "AH VOUS DIRAI-JE MAMAN",
-  "ALORS ON DANSE",
-  "ANEVA STO TRAPEZIMOU",
-  "APALAIS MENESS",
-  "ARMSTRONG",
-  "JOYEUX ANNIVERSAIRE",
-  "BELLA CIAO",
+  { name: "A LA CLAIRE FONTAINE", slug: "a-la-claire-fontaine" },
+  { name: "A LA UNA", slug: "a-la-una" },
+  { name: "AH VOUS DIRAI-JE MAMAN", slug: "ah-vous-dirai-je-maman" },
+  { name: "ALORS ON DANSE", slug: "alors-on-danse" },
+  { name: "ANEVA STO TRAPEZIMOU", slug: "aneva-sto-trapezimou" },
+  { name: "APALAIS MENESS", slug: "apalais-meness" },
+  { name: "ARMSTRONG", slug: "armstrong" },
+  { name: "JOYEUX ANNIVERSAIRE", slug: "joyeux-anniversaire" },
+  { name: "BELLA CIAO", slug: "bella-ciao" },
 ];
 
 interface SidebarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  selectedSong: string | null;
-  setSelectedSong: (song: string | null) => void;
 }
 
 export default function Sidebar({
   searchQuery,
   setSearchQuery,
-  selectedSong,
-  setSelectedSong,
 }: SidebarProps) {
   const [language, setLanguage] = useState<"FR" | "EN">("FR");
+  const router = useRouter();
 
   const filteredSongs = songs.filter((song) =>
-    song.toLowerCase().includes(searchQuery.toLowerCase())
+    song.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Get current slug from router
+  const currentSlug = router.query.slug as string | undefined;
 
   return (
     <aside className="w-[200px] min-h-screen bg-slate-700 flex flex-col px-4 py-6">
@@ -120,17 +122,17 @@ export default function Sidebar({
       <nav className="flex-1 overflow-y-auto">
         <ul className="space-y-1">
           {filteredSongs.map((song) => (
-            <li key={song}>
-              <button
-                onClick={() => setSelectedSong(song)}
-                className={`w-full text-left px-2 py-1.5 text-sm transition-colors rounded ${
-                  selectedSong === song
+            <li key={song.slug}>
+              <Link
+                href={`/song/${song.slug}`}
+                className={`block w-full text-left px-2 py-1.5 text-sm transition-colors rounded ${
+                  currentSlug === song.slug
                     ? "bg-slate-600 text-white"
                     : "text-slate-300 hover:bg-slate-600"
                 }`}
               >
-                {song}
-              </button>
+                {song.name}
+              </Link>
             </li>
           ))}
         </ul>

@@ -5,7 +5,6 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSong, setSelectedSong] = useState<string | null>(null);
 
   return (
     <div className="flex min-h-screen bg-white font-league">
@@ -13,8 +12,6 @@ export default function Home() {
       <Sidebar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        selectedSong={selectedSong}
-        setSelectedSong={setSelectedSong}
       />
 
       {/* Main Content Area */}
