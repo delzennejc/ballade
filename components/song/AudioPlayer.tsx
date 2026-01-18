@@ -1,17 +1,14 @@
-import { useState } from "react"
 import {
   Play,
   Pause,
   Repeat,
   Volume2,
   VolumeX,
-  ChevronDown,
-  ChevronUp,
-  ChevronLeft,
 } from "lucide-react"
 import { useAudioPlayer } from "@/hooks/useAudioPlayer"
 import { AudioTrack, AudioTrackData } from "@/types/song"
 import { useSongStore } from "@/store/songStore"
+import Dropdown, { DropdownOption } from "@/components/ui/Dropdown"
 
 interface AudioPlayerProps {
   audioTracks: AudioTrackData[]
@@ -26,9 +23,6 @@ const trackLabels: Record<AudioTrack, string> = {
 }
 
 export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [expandedTrack, setExpandedTrack] = useState<AudioTrack | null>(null)
-
   const {
     isPlaying,
     volume,
@@ -47,6 +41,16 @@ export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
   // Find current track data
   const currentTrackData = audioTracks.find((t) => t.track === selectedTrack)
 
+  // Convert audio tracks to dropdown options
+  const audioOptions: DropdownOption[] = audioTracks.map((trackData) => ({
+    id: trackData.track,
+    label: trackLabels[trackData.track],
+    subOptions:
+      trackData.versions.length > 1
+        ? trackData.versions.map((v) => ({ id: v.id, label: v.name }))
+        : undefined,
+  }))
+
   // Get display name for the dropdown button
   const getDisplayName = () => {
     if (!currentTrackData) return trackLabels[selectedTrack]
@@ -63,7 +67,10 @@ export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
     return selectedVersion?.name || currentTrackData.versions[0]?.name || trackLabels[selectedTrack]
   }
 
-  const handleSelectTrack = (trackData: AudioTrackData, versionId?: string) => {
+  const handleSelectAudio = (trackId: string, versionId?: string) => {
+    const trackData = audioTracks.find((t) => t.track === trackId)
+    if (!trackData) return
+
     const version = versionId
       ? trackData.versions.find((v) => v.id === versionId)
       : trackData.versions[0]
@@ -71,8 +78,6 @@ export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
     if (version) {
       setSelectedAudio(trackData.track, version.id)
     }
-    setShowDropdown(false)
-    setExpandedTrack(null)
   }
 
   return (
@@ -154,82 +159,13 @@ export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
         </div>
 
         {/* Audio Selection Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center gap-1 px-4 py-1.5 bg-[#F4F7FA] rounded-lg text-sm font-medium text-[#466387] hover:bg-slate-200 transition-colors"
-          >
-            {showDropdown ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
-            <span className="mt-0.5">{getDisplayName()}</span>
-          </button>
-
-          {showDropdown && (
-            <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg z-10 min-w-40 py-2">
-              {audioTracks.map((trackData) => {
-                const hasMultipleVersions = trackData.versions.length > 1
-                const isExpanded = expandedTrack === trackData.track
-                const isSelected = selectedTrack === trackData.track
-
-                return (
-                  <div key={trackData.track} className="relative">
-                    <button
-                      onClick={() => {
-                        if (hasMultipleVersions) {
-                          setExpandedTrack(isExpanded ? null : trackData.track)
-                        } else {
-                          handleSelectTrack(trackData)
-                        }
-                      }}
-                      className={`w-full px-4 py-1.5 text-sm hover:bg-slate-50 flex items-center justify-between ${
-                        isSelected
-                          ? "bg-slate-100 text-slate-700 font-medium"
-                          : "text-[#466387]"
-                      }`}
-                    >
-                      <span className="w-4">
-                        {hasMultipleVersions && (
-                          <ChevronLeft className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
-                        )}
-                      </span>
-                      <span>{trackLabels[trackData.track]}</span>
-                    </button>
-
-                    {/* Submenu for multiple versions */}
-                    {hasMultipleVersions && isExpanded && (
-                      <div className="absolute top-0 right-full mr-1 bg-white rounded-lg shadow-lg min-w-32 py-2">
-                        {trackData.versions.map((version) => {
-                          const isVersionSelected =
-                            isSelected && selectedVersionId === version.id
-
-                          return (
-                            <button
-                              key={version.id}
-                              onClick={() =>
-                                handleSelectTrack(trackData, version.id)
-                              }
-                              className={`w-full text-right px-4 py-1.5 text-sm hover:bg-slate-50 flex items-center justify-end gap-2 ${
-                                isVersionSelected
-                                  ? "bg-slate-100 text-slate-700 font-medium"
-                                  : "text-[#466387]"
-                              }`}
-                            >
-                              {version.name}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
+        <Dropdown
+          options={audioOptions}
+          selectedId={selectedTrack}
+          selectedSubId={selectedVersionId}
+          onSelect={handleSelectAudio}
+          displayValue={getDisplayName()}
+        />
       </div>
     </div>
   )

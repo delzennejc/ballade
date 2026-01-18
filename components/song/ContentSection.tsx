@@ -4,35 +4,37 @@ import { ReactNode } from 'react';
 interface ContentSectionProps {
   title: string;
   headerImage: string;
-  headerColor: string;
+  headerActions?: ReactNode;
   children: ReactNode;
 }
 
 export default function ContentSection({
   title,
   headerImage,
-  headerColor,
+  headerActions,
   children,
 }: ContentSectionProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div>
       {/* Header with decorative image */}
-      <div className={`relative h-16 ${headerColor}`}>
+      <div className="rounded-xl overflow-hidden">
         <Image
           src={headerImage}
           alt={title}
-          fill
-          className="object-cover opacity-80"
+          width={800}
+          height={64}
+          className="w-full h-auto"
         />
-        <div className="absolute inset-0 flex items-center px-4">
-          <h3 className="text-white font-bold text-lg drop-shadow-md">
-            {title}
-          </h3>
-        </div>
+      </div>
+
+      {/* Title row */}
+      <div className="flex items-center justify-between py-3 pl-3">
+        <h3 className="text-[#3D5A73] font-bold text-[26px]">{title}</h3>
+        {headerActions && <div className="flex items-center gap-2">{headerActions}</div>}
       </div>
 
       {/* Content */}
-      <div className="p-4">{children}</div>
+      <div className="pl-3">{children}</div>
     </div>
   );
 }

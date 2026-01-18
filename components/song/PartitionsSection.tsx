@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { MoreVertical } from 'lucide-react';
 import ContentSection from './ContentSection';
 
 interface PartitionsSectionProps {
@@ -24,11 +25,17 @@ export default function PartitionsSection({
     });
   }, [sheetMusic]);
 
+  const headerActions = (
+    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+      <MoreVertical className="w-5 h-5" />
+    </button>
+  );
+
   return (
     <ContentSection
       title="Partitions"
-      headerImage="/partition-header.png"
-      headerColor="bg-blue-500"
+      headerImage="/partition-header.svg"
+      headerActions={headerActions}
     >
       <div
         ref={containerRef}

@@ -53,12 +53,9 @@ export default function SongPage() {
     );
   }
 
-  // Calculate grid layout based on number of selected tabs
+  // Always use 2-column grid - content sections max out at half width
   const getGridClass = () => {
-    const count = selectedTabs.length;
-    if (count === 1) return 'grid-cols-1';
-    if (count === 2) return 'grid-cols-1 md:grid-cols-2';
-    return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2';
+    return 'grid-cols-1 md:grid-cols-2';
   };
 
   return (
@@ -74,23 +71,28 @@ export default function SongPage() {
             {/* Audio Player */}
             <AudioPlayer audioTracks={song.audioTracks} />
 
-            {/* Content Tabs */}
-            <ContentTabs />
+            {/* Content Container */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+              {/* Content Tabs */}
+              <ContentTabs />
 
-            {/* Content Sections */}
-            <div className={`grid ${getGridClass()} gap-4`}>
-              {selectedTabs.includes('paroles') && (
-                <ParolesSection lyrics={song.lyrics} />
-              )}
-              {selectedTabs.includes('partitions') && (
-                <PartitionsSection sheetMusic={song.sheetMusic} />
-              )}
-              {selectedTabs.includes('traductions') && (
-                <TraductionsSection translations={song.translations} />
-              )}
-              {selectedTabs.includes('histoire') && (
-                <HistoireSection history={song.history} />
-              )}
+              {/* Content Sections - rendered in selection order */}
+              <div className={`grid ${getGridClass()} gap-6`}>
+                {selectedTabs.map((tab) => {
+                  switch (tab) {
+                    case 'paroles':
+                      return <ParolesSection key={tab} lyrics={song.lyrics} />;
+                    case 'partitions':
+                      return <PartitionsSection key={tab} sheetMusic={song.sheetMusic} />;
+                    case 'traductions':
+                      return <TraductionsSection key={tab} translations={song.translations} />;
+                    case 'histoire':
+                      return <HistoireSection key={tab} history={song.history} />;
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
             </div>
           </div>
         </main>
