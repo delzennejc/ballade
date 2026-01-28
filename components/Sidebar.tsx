@@ -1,7 +1,8 @@
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/router";
+import Image from "next/image"
+import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/router"
+import FilterModal, { FilterState } from "./FilterModal"
 
 const songs = [
   { name: "A LA CLAIRE FONTAINE", slug: "a-la-claire-fontaine" },
@@ -13,42 +14,56 @@ const songs = [
   { name: "ARMSTRONG", slug: "armstrong" },
   { name: "JOYEUX ANNIVERSAIRE", slug: "joyeux-anniversaire" },
   { name: "BELLA CIAO", slug: "bella-ciao" },
-];
+]
 
 interface SidebarProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  searchQuery: string
+  setSearchQuery: (query: string) => void
 }
 
-export default function Sidebar({
-  searchQuery,
-  setSearchQuery,
-}: SidebarProps) {
-  const [language, setLanguage] = useState<"FR" | "EN">("FR");
-  const router = useRouter();
+const emptyFilters: FilterState = {
+  geographicOrigin: [],
+  musicalStyle: [],
+  language: [],
+  theme: [],
+  targetAudience: [],
+  difficultyLevel: [],
+}
+
+export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
+  const [language, setLanguage] = useState<"FR" | "EN">("FR")
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [filters, setFilters] = useState<FilterState>(emptyFilters)
+  const router = useRouter()
 
   const filteredSongs = songs.filter((song) =>
-    song.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    song.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  )
 
   // Get current slug from router
-  const currentSlug = router.query.slug as string | undefined;
+  const currentSlug = router.query.slug as string | undefined
+
+  // Calculate total active filters
+  const activeFiltersCount = Object.values(filters).reduce(
+    (total, arr) => total + arr.length,
+    0,
+  )
 
   return (
-    <aside className="w-[200px] min-h-screen bg-slate-700 flex flex-col px-4 py-6">
+    <aside className="w-[200px] min-h-screen bg-slate-700 flex flex-col py-6">
       {/* Logo */}
-      <div className="flex justify-center mb-4">
+      <Link href="/" className="flex justify-center mb-4 px-4">
         <Image
           src="/ballade-logo.png"
           alt="Association Ballade"
           width={100}
           height={100}
-          className="object-contain"
+          className="object-contain cursor-pointer"
         />
-      </div>
+      </Link>
 
       {/* Language Selector */}
-      <div className="flex justify-center gap-2 mb-4">
+      <div className="flex justify-center gap-2 mb-4 px-4">
         <button
           onClick={() => setLanguage("FR")}
           className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
@@ -72,36 +87,41 @@ export default function Sidebar({
       </div>
 
       {/* Search Input */}
-      <div className="relative mb-6">
-        <input
-          type="text"
-          placeholder="Rechercher"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 pr-8 bg-slate-600 border border-slate-500 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-400"
-        />
-        <svg
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      <div className="mb-6 px-4">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Rechercher"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-3 py-2 pr-8 bg-slate-600 border border-slate-500 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-400"
           />
-        </svg>
+          <svg
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
       </div>
 
       {/* Song List Header */}
-      <h2 className="text-sm font-semibold text-white mb-3 tracking-wide">
+      <h2 className="text-sm font-semibold text-white mb-3 tracking-wide px-4">
         LISTE DES CHANSONS
       </h2>
 
       {/* Filters Button */}
-      <button className="flex items-center gap-2 px-3 py-1.5 border border-slate-500 rounded-full text-sm text-slate-300 mb-4 w-fit hover:bg-slate-600">
+      <button
+        onClick={() => setIsFilterModalOpen(true)}
+        className="flex items-center gap-2 px-3 py-1 bg-slate-600 hover:bg-blue-500 rounded-full text-sm text-white mb-4 w-fit transition-colors mx-4"
+      >
         <svg
           className="w-4 h-4"
           fill="none"
@@ -116,7 +136,22 @@ export default function Sidebar({
           />
         </svg>
         Filtres
+        {activeFiltersCount > 0 && (
+          <span className="w-5 h-5 flex items-center justify-center bg-blue-500 rounded-full text-xs font-semibold">
+            <span className="pt-0.5">{activeFiltersCount}</span>
+          </span>
+        )}
       </button>
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={(newFilters) => {
+          setFilters(newFilters)
+          setIsFilterModalOpen(false)
+        }}
+        initialFilters={filters}
+      />
 
       {/* Song List */}
       <nav className="flex-1 overflow-y-auto">
@@ -125,10 +160,10 @@ export default function Sidebar({
             <li key={song.slug}>
               <Link
                 href={`/song/${song.slug}`}
-                className={`block w-full text-left px-2 py-1.5 text-sm transition-colors rounded ${
+                className={`block w-full text-left py-1.5 text-sm transition-colors ${
                   currentSlug === song.slug
-                    ? "bg-slate-600 text-white"
-                    : "text-slate-300 hover:bg-slate-600"
+                    ? "bg-blue-500 text-white px-4"
+                    : "text-slate-300 hover:bg-slate-600 px-4"
                 }`}
               >
                 {song.name}
@@ -138,5 +173,5 @@ export default function Sidebar({
         </ul>
       </nav>
     </aside>
-  );
+  )
 }

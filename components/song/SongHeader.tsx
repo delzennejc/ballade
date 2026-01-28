@@ -58,12 +58,12 @@ export default function SongHeader({ song }: SongHeaderProps) {
           <div className="flex flex-wrap gap-3 mb-3">
             <TagGroup
               icon={<Globe className="w-5 h-5" />}
-              items={[metadata.country]}
+              items={metadata.countries}
               colorClass="bg-blue-50 text-blue-700"
             />
             <TagGroup
               icon={<MessageCircle className="w-5 h-5" />}
-              items={[metadata.language]}
+              items={metadata.languages}
               colorClass="bg-green-50 text-green-700"
             />
             <TagGroup

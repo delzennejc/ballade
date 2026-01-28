@@ -8,13 +8,17 @@ import AudioPlayer from '@/components/song/AudioPlayer';
 import ContentTabs from '@/components/song/ContentTabs';
 import ParolesSection from '@/components/song/ParolesSection';
 import TraductionsSection from '@/components/song/TraductionsSection';
-import HistoireSection from '@/components/song/HistoireSection';
 import { getSongBySlug } from '@/lib/mockData';
 import { useSongStore } from '@/store/songStore';
 
-// Dynamic import for PartitionsSection to avoid SSR issues with abcjs
+// Dynamic imports to avoid SSR issues
 const PartitionsSection = dynamic(
   () => import('@/components/song/PartitionsSection'),
+  { ssr: false }
+);
+
+const HistoireSection = dynamic(
+  () => import('@/components/song/HistoireSection'),
   { ssr: false }
 );
 
@@ -83,7 +87,7 @@ export default function SongPage() {
                     case 'paroles':
                       return <ParolesSection key={tab} lyrics={song.lyrics} />;
                     case 'partitions':
-                      return <PartitionsSection key={tab} sheetMusic={song.sheetMusic} />;
+                      return <PartitionsSection key={tab} musicSheet={song.musicSheet} />;
                     case 'traductions':
                       return <TraductionsSection key={tab} translations={song.translations} />;
                     case 'histoire':

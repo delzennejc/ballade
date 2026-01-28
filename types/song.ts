@@ -14,6 +14,18 @@ export interface TranslationVersion {
   text: string;
 }
 
+export interface HistoryVersion {
+  language: string;
+  languageCode: string;
+  pdf: string;
+}
+
+export interface MusicSheetVersion {
+  language: string;
+  languageCode: string;
+  pdf: string;
+}
+
 export interface AudioTrackVersion {
   id: string;
   name: string;
@@ -25,8 +37,8 @@ export interface AudioTrackData {
 }
 
 export interface SongMetadata {
-  country: string;
-  language: string;
+  countries: string[];
+  languages: string[];
   genres: string[];
   audience: string[];
   difficulty: 'Facile' | 'Intermédiaire' | 'Difficile';
@@ -41,7 +53,7 @@ export interface Song {
   metadata: SongMetadata;
   lyrics: LyricsVersion[];
   translations: TranslationVersion[];
-  sheetMusic: string; // ABC notation
-  history: string;
+  musicSheet: MusicSheetVersion[];
+  history: HistoryVersion[];
   audioTracks: AudioTrackData[];
 }
