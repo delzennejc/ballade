@@ -85,5 +85,67 @@ export const Songs: CollectionConfig = {
       relationTo: 'themes',
       hasMany: true,
     },
+    // Lyrics array - multiple lyrics in different languages
+    {
+      name: 'lyrics',
+      type: 'array',
+      labels: {
+        singular: 'Lyric',
+        plural: 'Lyrics',
+      },
+      admin: {
+        description: 'Add lyrics in different languages',
+        components: {
+          RowLabel: '@/components/payload/LanguageRowLabel#LyricsRowLabel',
+        },
+      },
+      fields: [
+        {
+          name: 'language',
+          type: 'relationship',
+          relationTo: 'languages',
+          required: true,
+        },
+        {
+          name: 'text',
+          type: 'textarea',
+          required: true,
+          admin: {
+            description: 'The lyrics text in this language',
+          },
+        },
+      ],
+    },
+    // Translations array - multiple translations in different languages
+    {
+      name: 'translations',
+      type: 'array',
+      labels: {
+        singular: 'Translation',
+        plural: 'Translations',
+      },
+      admin: {
+        description: 'Add translations in different languages',
+        components: {
+          RowLabel: '@/components/payload/LanguageRowLabel#TranslationsRowLabel',
+        },
+      },
+      fields: [
+        {
+          name: 'language',
+          type: 'relationship',
+          relationTo: 'languages',
+          required: true,
+        },
+        {
+          name: 'text',
+          type: 'textarea',
+          required: true,
+          admin: {
+            description: 'The translation text in this language',
+          },
+        },
+      ],
+    },
   ],
 }
