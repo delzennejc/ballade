@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import {
   X,
   ChevronDown,
@@ -10,7 +10,8 @@ import {
   Users,
   Layers,
 } from "lucide-react"
-import { getAllRegions } from "@/data/geography"
+import { getRegionByCountry } from "@/data/geography"
+import { Song } from "@/types/song"
 
 export interface FilterState {
   geographicOrigin: string[] // Stores region names
@@ -25,80 +26,62 @@ interface FilterModalProps {
   isOpen: boolean
   onClose: (filters: FilterState) => void
   initialFilters?: FilterState
+  songs?: Song[]
 }
 
-const FILTER_DATA = {
-  geographicOrigin: getAllRegions(),
-  musicalStyle: [
-    "Traditionnel",
-    "Folk",
-    "Classique",
-    "Populaire",
-    "Berceuse",
-    "Comptine",
-    "Chant de travail",
-    "Chant religieux",
-  ],
-  language: [
-    "Albanais",
-    "Allemand",
-    "Alsacien",
-    "Anglais",
-    "Arabe",
-    "Arapaho",
-    "Arménien",
-    "BCMS",
-    "Brésilien indigène",
-    "Bulgare",
-    "Chechen",
-    "Espagnol",
-    "Farsi",
-    "Français",
-    "Gaélique",
-    "Gascon",
-    "Géorgien",
-    "Grec",
-    "Hongrois",
-    "Italien",
-    "Kurde",
-    "Ladino",
-    "Letton",
-    "Lingala",
-    "Macédonien",
-    "Maori",
-    "Néerlandais",
-    "Polonais",
-    "Portugais",
-    "Romani",
-    "Roumain",
-    "Russe",
-    "Suédois",
-    "Swahili",
-    "Turc",
-    "Ukrainien",
-    "Wolof",
-    "Yiddish",
-    "Zulu",
-  ],
-  theme: [
-    "Amour",
-    "Nature",
-    "Fête",
-    "Voyage",
-    "Histoire",
-    "Enfance",
-    "Travail",
-    "Liberté",
-  ],
-  targetAudience: [
-    "Enfants",
-    "Adolescents",
-    "Adultes",
-    "Tous publics",
-    "Scolaire",
-    "Famille",
-  ],
-  difficultyLevel: ["Débutant", "Intermédiaire", "Avancé"],
+// Compute available filter options from songs
+function computeAvailableOptions(songs: Song[]) {
+  const regions = new Set<string>()
+  const genres = new Set<string>()
+  const languages = new Set<string>()
+  const themes = new Set<string>()
+  const audiences = new Set<string>()
+  const difficulties = new Set<string>()
+
+  for (const song of songs) {
+    const meta = song.metadata
+    if (!meta) continue
+
+    // Map countries to regions
+    for (const country of meta.countries || []) {
+      const region = getRegionByCountry(country)
+      if (region) regions.add(region)
+    }
+
+    // Collect genres
+    for (const genre of meta.genres || []) {
+      genres.add(genre)
+    }
+
+    // Collect languages
+    for (const lang of meta.languages || []) {
+      languages.add(lang)
+    }
+
+    // Collect themes
+    for (const theme of meta.themes || []) {
+      themes.add(theme)
+    }
+
+    // Collect audiences
+    for (const aud of meta.audience || []) {
+      audiences.add(aud)
+    }
+
+    // Collect difficulty
+    if (meta.difficulty) {
+      difficulties.add(meta.difficulty)
+    }
+  }
+
+  return {
+    geographicOrigin: Array.from(regions).sort((a, b) => a.localeCompare(b, "fr")),
+    musicalStyle: Array.from(genres).sort((a, b) => a.localeCompare(b, "fr")),
+    language: Array.from(languages).sort((a, b) => a.localeCompare(b, "fr")),
+    theme: Array.from(themes).sort((a, b) => a.localeCompare(b, "fr")),
+    targetAudience: Array.from(audiences).sort((a, b) => a.localeCompare(b, "fr")),
+    difficultyLevel: Array.from(difficulties).sort((a, b) => a.localeCompare(b, "fr")),
+  }
 }
 
 type FilterCategory = keyof FilterState
@@ -193,12 +176,16 @@ export default function FilterModal({
   isOpen,
   onClose,
   initialFilters = emptyFilters,
+  songs = [],
 }: FilterModalProps) {
   const [filters, setFilters] = useState<FilterState>(initialFilters)
   const [expandedSections, setExpandedSections] = useState<Set<FilterCategory>>(
     new Set(["geographicOrigin"]),
   )
   const modalRef = useRef<HTMLDivElement>(null)
+
+  // Compute available filter options based on songs
+  const availableOptions = useMemo(() => computeAvailableOptions(songs), [songs])
 
   useEffect(() => {
     if (isOpen) {
@@ -281,84 +268,96 @@ export default function FilterModal({
 
         {/* Filter Sections */}
         <div className="flex-1 overflow-y-auto px-6">
-          <FilterSection
-            icon={<Globe className="w-5 h-5" />}
-            title="Origine géographique"
-            category="geographicOrigin"
-            options={FILTER_DATA.geographicOrigin}
-            selectedOptions={filters.geographicOrigin}
-            isExpanded={expandedSections.has("geographicOrigin")}
-            onToggle={() => toggleSection("geographicOrigin")}
-            onSelect={handleSelect}
-            colorClass="text-blue-700"
-            selectedBadgeClass="border-2 border-blue-700 text-blue-700 bg-blue-50"
-            countBadgeClass="text-blue-700 bg-blue-100"
-          />
-          <FilterSection
-            icon={<Music className="w-5 h-5" />}
-            title="Style musical"
-            category="musicalStyle"
-            options={FILTER_DATA.musicalStyle}
-            selectedOptions={filters.musicalStyle}
-            isExpanded={expandedSections.has("musicalStyle")}
-            onToggle={() => toggleSection("musicalStyle")}
-            onSelect={handleSelect}
-            colorClass="text-purple-700"
-            selectedBadgeClass="border-2 border-purple-700 text-purple-700 bg-purple-50"
-            countBadgeClass="text-purple-700 bg-purple-100"
-          />
-          <FilterSection
-            icon={<MessageCircle className="w-5 h-5" />}
-            title="Langue d'origine"
-            category="language"
-            options={FILTER_DATA.language}
-            selectedOptions={filters.language}
-            isExpanded={expandedSections.has("language")}
-            onToggle={() => toggleSection("language")}
-            onSelect={handleSelect}
-            colorClass="text-green-700"
-            selectedBadgeClass="border-2 border-green-700 text-green-700 bg-green-50"
-            countBadgeClass="text-green-700 bg-green-100"
-          />
-          <FilterSection
-            icon={<Sparkles className="w-5 h-5" />}
-            title="Thème"
-            category="theme"
-            options={FILTER_DATA.theme}
-            selectedOptions={filters.theme}
-            isExpanded={expandedSections.has("theme")}
-            onToggle={() => toggleSection("theme")}
-            onSelect={handleSelect}
-            colorClass="text-rose-700"
-            selectedBadgeClass="border-2 border-rose-700 text-rose-700 bg-rose-50"
-            countBadgeClass="text-rose-700 bg-rose-100"
-          />
-          <FilterSection
-            icon={<Users className="w-5 h-5" />}
-            title="Bénéficiaires / Public cible"
-            category="targetAudience"
-            options={FILTER_DATA.targetAudience}
-            selectedOptions={filters.targetAudience}
-            isExpanded={expandedSections.has("targetAudience")}
-            onToggle={() => toggleSection("targetAudience")}
-            onSelect={handleSelect}
-            colorClass="text-orange-700"
-            selectedBadgeClass="border-2 border-orange-700 text-orange-700 bg-orange-50"
-            countBadgeClass="text-orange-700 bg-orange-100"
-          />
-          <FilterSection
-            icon={<Layers className="w-5 h-5" />}
-            title="Niveau de difficulté"
-            category="difficultyLevel"
-            options={FILTER_DATA.difficultyLevel}
-            selectedOptions={filters.difficultyLevel}
-            isExpanded={expandedSections.has("difficultyLevel")}
-            onToggle={() => toggleSection("difficultyLevel")}
-            onSelect={handleSelect}
-            colorClass="text-amber-700"
-            selectedBadgeClass="border-2 border-amber-700 text-amber-700 bg-amber-50"
-            countBadgeClass="text-amber-700 bg-amber-100"
-          />
+          {availableOptions.geographicOrigin.length > 0 && (
+            <FilterSection
+              icon={<Globe className="w-5 h-5" />}
+              title="Origine géographique"
+              category="geographicOrigin"
+              options={availableOptions.geographicOrigin}
+              selectedOptions={filters.geographicOrigin}
+              isExpanded={expandedSections.has("geographicOrigin")}
+              onToggle={() => toggleSection("geographicOrigin")}
+              onSelect={handleSelect}
+              colorClass="text-blue-700"
+              selectedBadgeClass="border-2 border-blue-700 text-blue-700 bg-blue-50"
+              countBadgeClass="text-blue-700 bg-blue-100"
+            />
+          )}
+          {availableOptions.musicalStyle.length > 0 && (
+            <FilterSection
+              icon={<Music className="w-5 h-5" />}
+              title="Style musical"
+              category="musicalStyle"
+              options={availableOptions.musicalStyle}
+              selectedOptions={filters.musicalStyle}
+              isExpanded={expandedSections.has("musicalStyle")}
+              onToggle={() => toggleSection("musicalStyle")}
+              onSelect={handleSelect}
+              colorClass="text-purple-700"
+              selectedBadgeClass="border-2 border-purple-700 text-purple-700 bg-purple-50"
+              countBadgeClass="text-purple-700 bg-purple-100"
+            />
+          )}
+          {availableOptions.language.length > 0 && (
+            <FilterSection
+              icon={<MessageCircle className="w-5 h-5" />}
+              title="Langue d'origine"
+              category="language"
+              options={availableOptions.language}
+              selectedOptions={filters.language}
+              isExpanded={expandedSections.has("language")}
+              onToggle={() => toggleSection("language")}
+              onSelect={handleSelect}
+              colorClass="text-green-700"
+              selectedBadgeClass="border-2 border-green-700 text-green-700 bg-green-50"
+              countBadgeClass="text-green-700 bg-green-100"
+            />
+          )}
+          {availableOptions.theme.length > 0 && (
+            <FilterSection
+              icon={<Sparkles className="w-5 h-5" />}
+              title="Thème"
+              category="theme"
+              options={availableOptions.theme}
+              selectedOptions={filters.theme}
+              isExpanded={expandedSections.has("theme")}
+              onToggle={() => toggleSection("theme")}
+              onSelect={handleSelect}
+              colorClass="text-rose-700"
+              selectedBadgeClass="border-2 border-rose-700 text-rose-700 bg-rose-50"
+              countBadgeClass="text-rose-700 bg-rose-100"
+            />
+          )}
+          {availableOptions.targetAudience.length > 0 && (
+            <FilterSection
+              icon={<Users className="w-5 h-5" />}
+              title="Bénéficiaires / Public cible"
+              category="targetAudience"
+              options={availableOptions.targetAudience}
+              selectedOptions={filters.targetAudience}
+              isExpanded={expandedSections.has("targetAudience")}
+              onToggle={() => toggleSection("targetAudience")}
+              onSelect={handleSelect}
+              colorClass="text-orange-700"
+              selectedBadgeClass="border-2 border-orange-700 text-orange-700 bg-orange-50"
+              countBadgeClass="text-orange-700 bg-orange-100"
+            />
+          )}
+          {availableOptions.difficultyLevel.length > 0 && (
+            <FilterSection
+              icon={<Layers className="w-5 h-5" />}
+              title="Niveau de difficulté"
+              category="difficultyLevel"
+              options={availableOptions.difficultyLevel}
+              selectedOptions={filters.difficultyLevel}
+              isExpanded={expandedSections.has("difficultyLevel")}
+              onToggle={() => toggleSection("difficultyLevel")}
+              onSelect={handleSelect}
+              colorClass="text-amber-700"
+              selectedBadgeClass="border-2 border-amber-700 text-amber-700 bg-amber-50"
+              countBadgeClass="text-amber-700 bg-amber-100"
+            />
+          )}
         </div>
 
         {/* Footer Buttons */}

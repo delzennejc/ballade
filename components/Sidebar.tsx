@@ -1,9 +1,10 @@
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/router"
 import FilterModal, { FilterState } from "./FilterModal"
 import { useSongsDataStore } from "@/store/useSongsDataStore"
+import { getRegionByCountry } from "@/data/geography"
 
 interface SidebarProps {
   searchQuery: string
@@ -32,9 +33,67 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
     fetchSongs()
   }, [fetchSongs])
 
-  const filteredSongs = songs.filter((song) =>
-    song.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  // Filter songs by search query and active filters, sorted alphabetically
+  const filteredSongs = useMemo(() => {
+    return songs
+      .filter((song) => {
+      // Search query filter
+      if (searchQuery && !song.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false
+      }
+
+      const meta = song.metadata
+      if (!meta) return true // If no metadata, only apply search filter
+
+      // Geographic origin filter (check if song's countries belong to selected regions)
+      if (filters.geographicOrigin.length > 0) {
+        const songRegions = (meta.countries || [])
+          .map((country) => getRegionByCountry(country))
+          .filter(Boolean) as string[]
+        if (!filters.geographicOrigin.some((region) => songRegions.includes(region))) {
+          return false
+        }
+      }
+
+      // Musical style filter
+      if (filters.musicalStyle.length > 0) {
+        if (!filters.musicalStyle.some((style) => (meta.genres || []).includes(style))) {
+          return false
+        }
+      }
+
+      // Language filter
+      if (filters.language.length > 0) {
+        if (!filters.language.some((lang) => (meta.languages || []).includes(lang))) {
+          return false
+        }
+      }
+
+      // Theme filter
+      if (filters.theme.length > 0) {
+        if (!filters.theme.some((theme) => (meta.themes || []).includes(theme))) {
+          return false
+        }
+      }
+
+      // Target audience filter
+      if (filters.targetAudience.length > 0) {
+        if (!filters.targetAudience.some((aud) => (meta.audience || []).includes(aud))) {
+          return false
+        }
+      }
+
+      // Difficulty level filter
+      if (filters.difficultyLevel.length > 0) {
+        if (!filters.difficultyLevel.includes(meta.difficulty)) {
+          return false
+        }
+      }
+
+      return true
+      })
+      .sort((a, b) => a.title.localeCompare(b.title, "fr"))
+  }, [songs, searchQuery, filters])
 
   // Get current slug from router
   const currentSlug = router.query.slug as string | undefined
@@ -147,6 +206,7 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
           setIsFilterModalOpen(false)
         }}
         initialFilters={filters}
+        songs={songs}
       />
 
       {/* Song List */}

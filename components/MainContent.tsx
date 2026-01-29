@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Link from "next/link"
 import { Search, Globe } from "lucide-react"
 
 export default function MainContent() {
@@ -9,7 +10,12 @@ export default function MainContent() {
         <h1 className="font-urbanist text-6xl md:text-7xl lg:text-8xl font-bold text-blue-300 tracking-tight md:ml-8">
           Bienvenue
         </h1>
-        <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-full text-gray-600 bg-white/80 backdrop-blur-sm hover:bg-white transition-colors">
+        <Link
+          href="/admin"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-full text-gray-600 bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
+        >
           <svg
             className="w-5 h-5"
             fill="none"
@@ -30,7 +36,7 @@ export default function MainContent() {
             />
           </svg>
           Admin
-        </button>
+        </Link>
       </div>
 
       {/* Main Content Area - Frosted Card */}
