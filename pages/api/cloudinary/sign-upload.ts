@@ -7,6 +7,7 @@ type SignatureResponse = {
   cloudName: string
   apiKey: string
   folder: string
+  resourceType: 'image' | 'video' | 'raw'
 }
 
 type ErrorResponse = {
@@ -21,10 +22,16 @@ export default function handler(
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { folder } = req.body
+  const { folder, resourceType = 'image' } = req.body
 
   if (!folder || typeof folder !== 'string') {
     return res.status(400).json({ error: 'Folder path is required' })
+  }
+
+  // Validate resource type
+  const validResourceTypes = ['image', 'video', 'raw']
+  if (!validResourceTypes.includes(resourceType)) {
+    return res.status(400).json({ error: 'Invalid resource type' })
   }
 
   const timestamp = Math.round(new Date().getTime() / 1000)
@@ -43,5 +50,6 @@ export default function handler(
     cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
     apiKey: process.env.CLOUDINARY_API_KEY || '',
     folder,
+    resourceType,
   })
 }

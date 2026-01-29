@@ -176,7 +176,13 @@ export const Songs: CollectionConfig = {
           type: 'text',
           required: true,
           admin: {
-            description: 'Cloudinary public ID for the music sheet PDF',
+            description: 'Upload music sheet PDF to Cloudinary',
+            custom: {
+              folderType: 'sheets',
+            },
+            components: {
+              Field: '@/components/payload/CloudinaryPdfField#CloudinaryPdfField',
+            },
           },
         },
       ],
@@ -207,7 +213,13 @@ export const Songs: CollectionConfig = {
           type: 'text',
           required: true,
           admin: {
-            description: 'Cloudinary public ID for the history document PDF',
+            description: 'Upload history document PDF to Cloudinary',
+            custom: {
+              folderType: 'history',
+            },
+            components: {
+              Field: '@/components/payload/CloudinaryPdfField#CloudinaryPdfField',
+            },
           },
         },
       ],
@@ -274,7 +286,10 @@ export const Songs: CollectionConfig = {
               type: 'text',
               required: true,
               admin: {
-                description: 'Cloudinary public ID for the audio file',
+                description: 'Upload audio file to Cloudinary',
+                components: {
+                  Field: '@/components/payload/CloudinaryAudioField#CloudinaryAudioField',
+                },
               },
             },
           ],
