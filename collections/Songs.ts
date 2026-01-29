@@ -147,5 +147,67 @@ export const Songs: CollectionConfig = {
         },
       ],
     },
+    // Music sheets array - PDF documents per language
+    {
+      name: 'musicSheets',
+      type: 'array',
+      labels: {
+        singular: 'Music Sheet',
+        plural: 'Music Sheets',
+      },
+      admin: {
+        description: 'Add music sheet PDFs in different languages',
+        components: {
+          RowLabel: '@/components/payload/LanguageRowLabel#MusicSheetsRowLabel',
+        },
+      },
+      fields: [
+        {
+          name: 'language',
+          type: 'relationship',
+          relationTo: 'languages',
+          required: true,
+        },
+        {
+          name: 'pdfPublicId',
+          type: 'text',
+          required: true,
+          admin: {
+            description: 'Cloudinary public ID for the music sheet PDF',
+          },
+        },
+      ],
+    },
+    // History documents array - PDF documents per language
+    {
+      name: 'historyDocuments',
+      type: 'array',
+      labels: {
+        singular: 'History Document',
+        plural: 'History Documents',
+      },
+      admin: {
+        description: 'Add history document PDFs in different languages',
+        components: {
+          RowLabel: '@/components/payload/LanguageRowLabel#HistoryDocumentsRowLabel',
+        },
+      },
+      fields: [
+        {
+          name: 'language',
+          type: 'relationship',
+          relationTo: 'languages',
+          required: true,
+        },
+        {
+          name: 'pdfPublicId',
+          type: 'text',
+          required: true,
+          admin: {
+            description: 'Cloudinary public ID for the history document PDF',
+          },
+        },
+      ],
+    },
   ],
 }
