@@ -46,13 +46,13 @@ export default async function handler(
   try {
     const payload = await getPayloadClient()
 
-    // Find the song by slug
+    // Find the song by slug with populated track types
     const result = await payload.find({
       collection: 'songs',
       where: {
         slug: { equals: slug },
       },
-      depth: 0, // No need to populate relationships for this query
+      depth: 2, // Populate trackType relationship to get slug
       limit: 1,
     })
 
@@ -62,7 +62,7 @@ export default async function handler(
 
     const song = result.docs[0] as Record<string, unknown>
     const audioTracks = song.audioTracks as Array<{
-      trackType?: string
+      trackType?: { slug?: string } | string
       versions?: Array<{
         versionId?: string
         name?: string
@@ -74,8 +74,15 @@ export default async function handler(
       return res.status(404).json({ error: 'No audio tracks found for this song' })
     }
 
-    // Find the track with matching type
-    const track = audioTracks.find(t => t.trackType === trackType)
+    // Helper to extract slug from track type
+    const getTrackSlug = (tt: { slug?: string } | string | undefined): string => {
+      if (!tt) return ''
+      if (typeof tt === 'object' && 'slug' in tt) return tt.slug || ''
+      return ''
+    }
+
+    // Find the track with matching type slug
+    const track = audioTracks.find(t => getTrackSlug(t.trackType) === trackType)
 
     if (!track) {
       return res.status(404).json({ error: `Track type '${trackType}' not found for this song` })

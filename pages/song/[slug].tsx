@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Sidebar from '@/components/Sidebar';
 import Footer from '@/components/Footer';
@@ -10,6 +10,35 @@ import ParolesSection from '@/components/song/ParolesSection';
 import TraductionsSection from '@/components/song/TraductionsSection';
 import { useSongStore } from '@/store/songStore';
 import { useSongsDataStore } from '@/store/useSongsDataStore';
+import { ContentTab, Song } from '@/types/song';
+
+function getAvailableTabs(song: Song | null): ContentTab[] {
+  if (!song) return [];
+
+  const available: ContentTab[] = [];
+
+  // Paroles: has lyrics with text
+  if (song.lyrics?.some((l) => l.text?.trim())) {
+    available.push('paroles');
+  }
+
+  // Partitions: has music sheets with PDF
+  if (song.musicSheet?.some((m) => m.pdf?.trim())) {
+    available.push('partitions');
+  }
+
+  // Traductions: has lyrics with translations
+  if (song.lyrics?.some((l) => l.translations?.some((t) => t.text?.trim()))) {
+    available.push('traductions');
+  }
+
+  // Histoire: has history with PDF
+  if (song.history?.some((h) => h.pdf?.trim())) {
+    available.push('histoire');
+  }
+
+  return available;
+}
 
 // Dynamic imports to avoid SSR issues
 const PartitionsSection = dynamic(
@@ -25,8 +54,28 @@ const HistoireSection = dynamic(
 export default function SongPage() {
   const router = useRouter();
   const { slug } = router.query;
-  const { selectedTabs, resetState } = useSongStore();
+  const { selectedTabs, resetState, setSelectedTabs, setSelectedAudio, selectedVersionId } = useSongStore();
   const { currentSong: song, isLoading, error, fetchSongBySlug, clearCurrentSong } = useSongsDataStore();
+
+  // Calculate available tabs based on song content
+  const availableTabs = useMemo(() => getAvailableTabs(song), [song]);
+
+  // Set initial selected tab to first available tab when song loads
+  useEffect(() => {
+    if (availableTabs.length > 0 && !availableTabs.includes(selectedTabs[0])) {
+      setSelectedTabs([availableTabs[0]]);
+    }
+  }, [availableTabs, selectedTabs, setSelectedTabs]);
+
+  // Set initial audio track and version when song loads
+  useEffect(() => {
+    if (song?.audioTracks?.length && !selectedVersionId) {
+      const firstTrack = song.audioTracks[0];
+      if (firstTrack.versions?.length) {
+        setSelectedAudio(firstTrack.track, firstTrack.versions[0].id);
+      }
+    }
+  }, [song, selectedVersionId, setSelectedAudio]);
 
   // Fetch song when slug changes
   useEffect(() => {
@@ -120,24 +169,26 @@ export default function SongPage() {
             {/* Song Header */}
             <SongHeader song={song} />
 
-            {/* Audio Player */}
-            <AudioPlayer audioTracks={song.audioTracks} />
+            {/* Audio Player - only show if there are audio tracks */}
+            {song.audioTracks?.length > 0 && (
+              <AudioPlayer audioTracks={song.audioTracks} />
+            )}
 
             {/* Content Container */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
               {/* Content Tabs */}
-              <ContentTabs />
+              <ContentTabs availableTabs={availableTabs} />
 
               {/* Content Sections - rendered in selection order */}
               <div className={`grid ${getGridClass()} gap-6`}>
-                {selectedTabs.map((tab) => {
+                {selectedTabs.filter((tab) => availableTabs.includes(tab)).map((tab) => {
                   switch (tab) {
                     case 'paroles':
                       return <ParolesSection key={tab} lyrics={song.lyrics} />;
                     case 'partitions':
                       return <PartitionsSection key={tab} musicSheet={song.musicSheet} />;
                     case 'traductions':
-                      return <TraductionsSection key={tab} translations={song.translations} />;
+                      return <TraductionsSection key={tab} lyrics={song.lyrics} />;
                     case 'histoire':
                       return <HistoireSection key={tab} history={song.history} />;
                     default:

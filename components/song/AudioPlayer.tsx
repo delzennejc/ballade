@@ -6,20 +6,12 @@ import {
   VolumeX,
 } from "lucide-react"
 import { useAudioPlayer } from "@/hooks/useAudioPlayer"
-import { AudioTrack, AudioTrackData } from "@/types/song"
+import { AudioTrackData } from "@/types/song"
 import { useSongStore } from "@/store/songStore"
 import Dropdown, { DropdownOption } from "@/components/ui/Dropdown"
 
 interface AudioPlayerProps {
   audioTracks: AudioTrackData[]
-}
-
-const trackLabels: Record<AudioTrack, string> = {
-  groupe: "Audio groupe",
-  violon: "Audio violon",
-  chant: "Audio chant",
-  guitare: "Audio guitare",
-  percussion: "Audio percussions",
 }
 
 export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
@@ -44,7 +36,7 @@ export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
   // Convert audio tracks to dropdown options
   const audioOptions: DropdownOption[] = audioTracks.map((trackData) => ({
     id: trackData.track,
-    label: trackLabels[trackData.track],
+    label: trackData.trackName || trackData.track,
     subOptions:
       trackData.versions.length > 1
         ? trackData.versions.map((v) => ({ id: v.id, label: v.name }))
@@ -53,18 +45,20 @@ export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
 
   // Get display name for the dropdown button
   const getDisplayName = () => {
-    if (!currentTrackData) return trackLabels[selectedTrack]
+    const trackLabel = currentTrackData?.trackName || selectedTrack
+
+    if (!currentTrackData) return trackLabel
 
     // If single version, show track name
     if (currentTrackData.versions.length === 1) {
-      return trackLabels[selectedTrack]
+      return trackLabel
     }
 
     // If multiple versions, show selected version name
     const selectedVersion = currentTrackData.versions.find(
       (v) => v.id === selectedVersionId
     )
-    return selectedVersion?.name || currentTrackData.versions[0]?.name || trackLabels[selectedTrack]
+    return selectedVersion?.name || currentTrackData.versions[0]?.name || trackLabel
   }
 
   const handleSelectAudio = (trackId: string, versionId?: string) => {

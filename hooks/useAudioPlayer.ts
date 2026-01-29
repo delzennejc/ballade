@@ -1,8 +1,13 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import { useSongStore } from '@/store/songStore';
+import { useSongsDataStore } from '@/store/useSongsDataStore';
 
 export function useAudioPlayer() {
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
+  const { slug } = router.query;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isLoadingAudio = useRef(false);
 
   const {
     isPlaying,
@@ -13,8 +18,8 @@ export function useAudioPlayer() {
     selectedTrack,
     selectedVersionId,
     setIsPlaying,
-    togglePlayPause,
     setCurrentTime,
+    setDuration,
     setVolume,
     toggleLoop,
     setSelectedTrack,
@@ -22,66 +27,146 @@ export function useAudioPlayer() {
     setSelectedAudio,
   } = useSongStore();
 
-  // Simulate audio playback progress (mock - no real audio)
+  const { getAudioUrl } = useSongsDataStore();
+
+  // Initialize audio element
   useEffect(() => {
-    if (isPlaying) {
-      intervalRef.current = setInterval(() => {
-        useSongStore.setState((state) => {
-          const newTime = state.currentTime + 0.1;
-          if (newTime >= state.duration) {
-            if (state.isLooping) {
-              return { currentTime: 0 };
-            }
-            return { currentTime: state.duration, isPlaying: false };
-          }
-          return { currentTime: newTime };
-        });
-      }, 100);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.volume = volume;
     }
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+    const audio = audioRef.current;
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
+
+    const handleEnded = () => {
+      if (isLooping) {
+        audio.currentTime = 0;
+        audio.play();
+      } else {
+        setIsPlaying(false);
       }
     };
-  }, [isPlaying]);
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+    };
+  }, [isLooping, setCurrentTime, setDuration, setIsPlaying]);
+
+  // Update volume when it changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  // Update loop setting when it changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.loop = isLooping;
+    }
+  }, [isLooping]);
+
+  // Load audio when track or version changes
+  useEffect(() => {
+    const loadAudio = async () => {
+      if (!slug || typeof slug !== 'string' || !selectedTrack || !selectedVersionId) {
+        return;
+      }
+
+      if (isLoadingAudio.current) return;
+      isLoadingAudio.current = true;
+
+      try {
+        const url = await getAudioUrl(slug, selectedTrack, selectedVersionId);
+
+        if (url && audioRef.current) {
+          const wasPlaying = !audioRef.current.paused;
+          audioRef.current.src = url;
+          audioRef.current.load();
+
+          if (wasPlaying) {
+            audioRef.current.play().catch(console.error);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load audio:', error);
+      } finally {
+        isLoadingAudio.current = false;
+      }
+    };
+
+    loadAudio();
+  }, [slug, selectedTrack, selectedVersionId, getAudioUrl]);
 
   const formatTime = useCallback((seconds: number): string => {
+    if (!isFinite(seconds) || isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
+  const togglePlayPause = useCallback(() => {
+    if (!audioRef.current) return;
+
+    if (audioRef.current.paused) {
+      audioRef.current.play().catch(console.error);
+    } else {
+      audioRef.current.pause();
+    }
+  }, []);
+
   const seek = useCallback(
     (time: number) => {
-      const clampedTime = Math.max(0, Math.min(duration, time));
+      if (!audioRef.current) return;
+      const clampedTime = Math.max(0, Math.min(audioRef.current.duration || 0, time));
+      audioRef.current.currentTime = clampedTime;
       setCurrentTime(clampedTime);
     },
-    [duration, setCurrentTime]
+    [setCurrentTime]
   );
 
   const seekByPercentage = useCallback(
     (percentage: number) => {
-      const time = (percentage / 100) * duration;
+      if (!audioRef.current) return;
+      const time = (percentage / 100) * (audioRef.current.duration || 0);
       seek(time);
     },
-    [duration, seek]
+    [seek]
   );
 
   const restart = useCallback(() => {
-    setCurrentTime(0);
-    setIsPlaying(true);
-  }, [setCurrentTime, setIsPlaying]);
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = 0;
+    audioRef.current.play().catch(console.error);
+  }, []);
 
   const stop = useCallback(() => {
-    setIsPlaying(false);
+    if (!audioRef.current) return;
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
     setCurrentTime(0);
-  }, [setIsPlaying, setCurrentTime]);
+  }, [setCurrentTime]);
 
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 

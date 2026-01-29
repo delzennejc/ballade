@@ -5,7 +5,7 @@
 set -e
 
 # Parse arguments
-TOOL="amp"  # Default to amp for backwards compatibility
+TOOL="claude"  # Default to amp for backwards compatibility
 MAX_ITERATIONS=10
 
 while [[ $# -gt 0 ]]; do
@@ -92,7 +92,8 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | amp --dangerously-allow-all 2>&1 | tee /dev/stderr) || true
   else
     # Claude Code: use --dangerously-skip-permissions for autonomous operation, --print for output
-    OUTPUT=$(claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/CLAUDE.md" 2>&1 | tee /dev/stderr) || true
+    PROMPT=$(cat "$SCRIPT_DIR/CLAUDE.md")
+    OUTPUT=$(claude --dangerously-skip-permissions --print -p "$PROMPT" 2>&1 | tee /dev/stderr) || true
   fi
   
   # Check for completion signal

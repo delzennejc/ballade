@@ -31,3 +31,9 @@ export const HistoryDocumentsRowLabel = () => {
   const languageName = typeof data?.language === 'object' ? data?.language?.name : data?.language
   return <span>{languageName || 'History Document'}</span>
 }
+
+export const LyricTranslationsRowLabel = () => {
+  const { data } = useRowLabel<RowData>()
+  const languageName = typeof data?.language === 'object' ? data?.language?.name : data?.language
+  return <span>{languageName || 'Translation'}</span>
+}

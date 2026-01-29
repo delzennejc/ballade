@@ -45,7 +45,7 @@ export const useSongsDataStore = create<SongsDataState>((set, get) => ({
         });
       }
       const queryString = params.toString();
-      const url = queryString ? `/api/songs?${queryString}` : '/api/songs';
+      const url = queryString ? `/api/public/songs?${queryString}` : '/api/public/songs';
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -65,7 +65,7 @@ export const useSongsDataStore = create<SongsDataState>((set, get) => ({
   fetchSongBySlug: async (slug: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`/api/songs/${slug}`);
+      const response = await fetch(`/api/public/songs/${slug}`);
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Song not found');
@@ -85,7 +85,7 @@ export const useSongsDataStore = create<SongsDataState>((set, get) => ({
   // Get audio URL for a specific track version
   getAudioUrl: async (slug: string, trackType: AudioTrack, versionId: string) => {
     try {
-      const response = await fetch(`/api/songs/${slug}/audio/${trackType}/${versionId}`);
+      const response = await fetch(`/api/public/songs/${slug}/audio/${trackType}/${versionId}`);
       if (!response.ok) {
         if (response.status === 404) {
           return null;

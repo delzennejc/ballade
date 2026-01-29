@@ -10,9 +10,10 @@ import {
   Users,
   Layers,
 } from "lucide-react"
+import { getAllRegions } from "@/data/geography"
 
 export interface FilterState {
-  geographicOrigin: string[]
+  geographicOrigin: string[] // Stores region names
   musicalStyle: string[]
   language: string[]
   theme: string[]
@@ -27,26 +28,7 @@ interface FilterModalProps {
 }
 
 const FILTER_DATA = {
-  geographicOrigin: [
-    "Afrique du Nord",
-    "Afrique de l'Ouest",
-    "Afrique de l'Est",
-    "Afrique Australe",
-    "Afrique Centrale",
-    "Amérique du Nord",
-    "Amérique Centrale",
-    "Amérique du Sud",
-    "Asie de l'Ouest",
-    "Asie Centrale",
-    "Europe de l'Ouest",
-    "Europe de l'Est",
-    "Europe du Nord-Ouest",
-    "Europe du Nord",
-    "Europe du Nord-Est",
-    "Europe du Sud-Ouest",
-    "Europe du Sud-Est",
-    "Europe du Sud",
-  ],
+  geographicOrigin: getAllRegions(),
   musicalStyle: [
     "Traditionnel",
     "Folk",

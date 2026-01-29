@@ -124,7 +124,7 @@ async function migrateSongs() {
       .map((name) => themesMap.get(name))
       .filter((id): id is number | string => id !== undefined)
 
-    // Build lyrics array with language relationships
+    // Build lyrics array with language relationships and nested translations
     const lyrics = song.lyrics
       .map((lyric) => {
         const langId = getLanguageId(lyric.language, lyric.languageCode)
@@ -132,27 +132,28 @@ async function migrateSongs() {
           console.warn(`    Warning: Language not found for lyric: ${lyric.language}`)
           return null
         }
+        // Build nested translations for this lyric
+        const nestedTranslations = (lyric.translations || [])
+          .map((translation) => {
+            const transLangId = getLanguageId(translation.language, translation.languageCode)
+            if (!transLangId) {
+              console.warn(`    Warning: Language not found for translation: ${translation.language}`)
+              return null
+            }
+            return {
+              language: transLangId,
+              text: translation.text,
+            }
+          })
+          .filter((t): t is NonNullable<typeof t> => t !== null)
+
         return {
           language: langId,
           text: lyric.text,
+          translations: nestedTranslations,
         }
       })
       .filter((l): l is NonNullable<typeof l> => l !== null)
-
-    // Build translations array with language relationships
-    const translations = song.translations
-      .map((translation) => {
-        const langId = getLanguageId(translation.language, translation.languageCode)
-        if (!langId) {
-          console.warn(`    Warning: Language not found for translation: ${translation.language}`)
-          return null
-        }
-        return {
-          language: langId,
-          text: translation.text,
-        }
-      })
-      .filter((t): t is NonNullable<typeof t> => t !== null)
 
     // Build music sheets array with placeholder public IDs
     const musicSheets = song.musicSheet
@@ -208,7 +209,6 @@ async function migrateSongs() {
         audiences: audienceIds,
         themes: themeIds,
         lyrics,
-        translations,
         musicSheets,
         historyDocuments,
         audioTracks,

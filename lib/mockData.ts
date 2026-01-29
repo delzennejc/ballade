@@ -41,32 +41,11 @@ Moi je l'ai à pleurer
 
 Il y a longtemps que je t'aime
 Jamais je ne t'oublierai`,
-      },
-      {
-        language: "English",
-        languageCode: "en",
-        text: `At the clear fountain
-While I was walking
-I found the water so beautiful
-That I bathed in it
-
-I have loved you for a long time
-I will never forget you
-
-Under the leaves of an oak
-I dried myself
-On the highest branch
-A nightingale was singing
-
-I have loved you for a long time
-I will never forget you`,
-      },
-    ],
-    translations: [
-      {
-        language: "English",
-        languageCode: "en",
-        text: `At the clear fountain
+        translations: [
+          {
+            language: "English",
+            languageCode: "en",
+            text: `At the clear fountain
 While I was walking
 I found the water so beautiful
 That I bathed in it
@@ -89,17 +68,39 @@ I have one for crying
 
 I have loved you for a long time
 I will never forget you`,
-      },
-      {
-        language: "Español",
-        languageCode: "es",
-        text: `En la fuente clara
+          },
+          {
+            language: "Español",
+            languageCode: "es",
+            text: `En la fuente clara
 Mientras paseaba
 Encontré el agua tan bella
 Que me bañé en ella
 
 Te he amado por mucho tiempo
 Nunca te olvidaré`,
+          },
+        ],
+      },
+      {
+        language: "English",
+        languageCode: "en",
+        text: `At the clear fountain
+While I was walking
+I found the water so beautiful
+That I bathed in it
+
+I have loved you for a long time
+I will never forget you
+
+Under the leaves of an oak
+I dried myself
+On the highest branch
+A nightingale was singing
+
+I have loved you for a long time
+I will never forget you`,
+        translations: [],
       },
     ],
     musicSheet: [
@@ -117,10 +118,10 @@ Nunca te olvidaré`,
       },
     ],
     audioTracks: [
-      { track: "groupe", versions: [{ id: "groupe-fr", name: "Français" }] },
-      { track: "violon", versions: [{ id: "violon-fr", name: "Français" }] },
-      { track: "chant", versions: [{ id: "chant-fr", name: "Français" }] },
-      { track: "guitare", versions: [{ id: "guitare-fr", name: "Français" }] },
+      { track: "groupe", trackName: "Audio groupe", versions: [{ id: "groupe-fr", name: "Français" }] },
+      { track: "violon", trackName: "Audio violon", versions: [{ id: "violon-fr", name: "Français" }] },
+      { track: "chant", trackName: "Audio chant", versions: [{ id: "chant-fr", name: "Français" }] },
+      { track: "guitare", trackName: "Audio guitare", versions: [{ id: "guitare-fr", name: "Français" }] },
     ],
   },
   {
@@ -159,26 +160,11 @@ Seppellire lassù in montagna
 O bella ciao, bella ciao, bella ciao ciao ciao
 Seppellire lassù in montagna
 Sotto l'ombra di un bel fior`,
-      },
-      {
-        language: "Français",
-        languageCode: "fr",
-        text: `Un beau matin, je me suis réveillé
-O bella ciao, bella ciao, bella ciao ciao ciao
-Un beau matin, je me suis réveillé
-Et j'ai trouvé l'envahisseur
-
-O partisan, emmène-moi
-O bella ciao, bella ciao, bella ciao ciao ciao
-O partisan, emmène-moi
-Car je sens que je vais mourir`,
-      },
-    ],
-    translations: [
-      {
-        language: "Français",
-        languageCode: "fr",
-        text: `Un beau matin, je me suis réveillé
+        translations: [
+          {
+            language: "Français",
+            languageCode: "fr",
+            text: `Un beau matin, je me suis réveillé
 O bella ciao, bella ciao, bella ciao ciao ciao
 Un beau matin, je me suis réveillé
 Et j'ai trouvé l'envahisseur
@@ -197,11 +183,11 @@ Enterre-moi là-haut dans la montagne
 O bella ciao, bella ciao, bella ciao ciao ciao
 Enterre-moi là-haut dans la montagne
 Sous l'ombre d'une belle fleur`,
-      },
-      {
-        language: "English",
-        languageCode: "en",
-        text: `One morning I woke up
+          },
+          {
+            language: "English",
+            languageCode: "en",
+            text: `One morning I woke up
 O bella ciao, bella ciao, bella ciao ciao ciao
 One morning I woke up
 And I found the invader
@@ -210,6 +196,22 @@ O partisan, take me away
 O bella ciao, bella ciao, bella ciao ciao ciao
 O partisan, take me away
 Because I feel I'm going to die`,
+          },
+        ],
+      },
+      {
+        language: "Français",
+        languageCode: "fr",
+        text: `Un beau matin, je me suis réveillé
+O bella ciao, bella ciao, bella ciao ciao ciao
+Un beau matin, je me suis réveillé
+Et j'ai trouvé l'envahisseur
+
+O partisan, emmène-moi
+O bella ciao, bella ciao, bella ciao ciao ciao
+O partisan, emmène-moi
+Car je sens que je vais mourir`,
+        translations: [],
       },
     ],
     musicSheet: [
@@ -227,9 +229,10 @@ Because I feel I'm going to die`,
       },
     ],
     audioTracks: [
-      { track: "groupe", versions: [{ id: "groupe-it", name: "Italien" }] },
+      { track: "groupe", trackName: "Audio groupe", versions: [{ id: "groupe-it", name: "Italien" }] },
       {
         track: "violon",
+        trackName: "Audio violon",
         versions: [
           { id: "violon-chorus", name: "Chorus" },
           { id: "violon-verse", name: "Verse" },
@@ -239,6 +242,7 @@ Because I feel I'm going to die`,
       },
       {
         track: "chant",
+        trackName: "Audio chant",
         versions: [
           { id: "chant-de", name: "Allemand" },
           { id: "chant-en", name: "Anglais" },
@@ -250,9 +254,10 @@ Because I feel I'm going to die`,
           { id: "chant-uk", name: "Ukrainien" },
         ],
       },
-      { track: "guitare", versions: [{ id: "guitare-it", name: "Italien" }] },
+      { track: "guitare", trackName: "Audio guitare", versions: [{ id: "guitare-it", name: "Italien" }] },
       {
         track: "percussion",
+        trackName: "Audio percussions",
         versions: [{ id: "percussion-it", name: "Italien" }],
       },
     ],
@@ -287,13 +292,11 @@ Papa veut que je demande
 De la soupe et de la viande ;
 Moi, je dis que les bonbons
 Valent mieux que les mignons.`,
-      },
-    ],
-    translations: [
-      {
-        language: "English",
-        languageCode: "en",
-        text: `Ah! Let me tell you, mother,
+        translations: [
+          {
+            language: "English",
+            languageCode: "en",
+            text: `Ah! Let me tell you, mother,
 What causes my torment?
 Father wants me to reason
 Like a grown-up person;
@@ -306,6 +309,8 @@ Father wants me to ask for
 Soup and meat;
 I say that sweets
 Are better than the little ones.`,
+          },
+        ],
       },
     ],
     musicSheet: [
@@ -323,9 +328,9 @@ Are better than the little ones.`,
       },
     ],
     audioTracks: [
-      { track: "groupe", versions: [{ id: "groupe-fr", name: "Français" }] },
-      { track: "chant", versions: [{ id: "chant-fr", name: "Français" }] },
-      { track: "violon", versions: [{ id: "violon-fr", name: "Français" }] },
+      { track: "groupe", trackName: "Audio groupe", versions: [{ id: "groupe-fr", name: "Français" }] },
+      { track: "chant", trackName: "Audio chant", versions: [{ id: "chant-fr", name: "Français" }] },
+      { track: "violon", trackName: "Audio violon", versions: [{ id: "violon-fr", name: "Français" }] },
     ],
   },
 ]

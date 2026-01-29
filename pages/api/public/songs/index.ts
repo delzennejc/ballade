@@ -1,10 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { Where } from 'payload'
 import { getPayloadClient } from '@/lib/payload'
-import type { Song, SongMetadata, LyricsVersion, TranslationVersion, MusicSheetVersion, HistoryVersion, AudioTrackData } from '@/types/song'
+import type { Song, SongMetadata, LyricsVersion, MusicSheetVersion, HistoryVersion, AudioTrackData } from '@/types/song'
 
-// Cloudinary base URL
-const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
 function buildCloudinaryUrl(publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): string {
   if (!publicId) return ''
@@ -31,10 +30,8 @@ function extractCode(field: { code?: string } | string | number | null | undefin
 
 // Transform Payload song document to Song interface
 function transformSong(doc: Record<string, unknown>): Song {
-  // Extract metadata from relationship fields
-  const countries = (doc.countries as Array<{ name?: string } | string | number> || [])
-    .map(extractName)
-    .filter(Boolean)
+  // Countries is a select field with hasMany: true, so it stores strings directly
+  const countries = (doc.countries as string[] || []).filter(Boolean)
 
   const languages = (doc.languages as Array<{ name?: string } | string | number> || [])
     .map(extractName)
@@ -61,18 +58,20 @@ function transformSong(doc: Record<string, unknown>): Song {
     themes,
   }
 
-  // Transform lyrics array
-  const lyrics: LyricsVersion[] = ((doc.lyrics as Array<{ language?: { name?: string; code?: string }; text?: string }>) || []).map((lyric) => ({
+  // Transform lyrics array with nested translations
+  const lyrics: LyricsVersion[] = ((doc.lyrics as Array<{
+    language?: { name?: string; code?: string };
+    text?: string;
+    translations?: Array<{ language?: { name?: string; code?: string }; text?: string }>;
+  }>) || []).map((lyric) => ({
     language: extractName(lyric.language),
     languageCode: extractCode(lyric.language),
     text: lyric.text || '',
-  }))
-
-  // Transform translations array
-  const translations: TranslationVersion[] = ((doc.translations as Array<{ language?: { name?: string; code?: string }; text?: string }>) || []).map((trans) => ({
-    language: extractName(trans.language),
-    languageCode: extractCode(trans.language),
-    text: trans.text || '',
+    translations: (lyric.translations || []).map((trans) => ({
+      language: extractName(trans.language),
+      languageCode: extractCode(trans.language),
+      text: trans.text || '',
+    })),
   }))
 
   // Transform music sheets array
@@ -89,9 +88,19 @@ function transformSong(doc: Record<string, unknown>): Song {
     pdf: buildCloudinaryUrl(hist.pdfPublicId || '', 'raw'),
   }))
 
+  // Helper to extract slug from track type relationship
+  const extractSlug = (field: { slug?: string } | string | number | null | undefined): string => {
+    if (!field) return ''
+    if (typeof field === 'object' && 'slug' in field) {
+      return field.slug || ''
+    }
+    return ''
+  }
+
   // Transform audio tracks array
-  const audioTracks: AudioTrackData[] = ((doc.audioTracks as Array<{ trackType?: string; versions?: Array<{ versionId?: string; name?: string; audioPublicId?: string }> }>) || []).map((track) => ({
-    track: (track.trackType || 'groupe') as AudioTrackData['track'],
+  const audioTracks: AudioTrackData[] = ((doc.audioTracks as Array<{ trackType?: { slug?: string; name?: string } | string | number; versions?: Array<{ versionId?: string; name?: string; audioPublicId?: string }> }>) || []).map((track) => ({
+    track: extractSlug(track.trackType) || 'groupe',
+    trackName: extractName(track.trackType) || 'Audio',
     versions: (track.versions || []).map((v) => ({
       id: v.versionId || '',
       name: v.name || '',
@@ -105,7 +114,6 @@ function transformSong(doc: Record<string, unknown>): Song {
     thumbnail: buildCloudinaryUrl((doc.thumbnailPublicId as string) || '', 'image'),
     metadata,
     lyrics,
-    translations,
     musicSheet,
     history,
     audioTracks,

@@ -7,15 +7,23 @@ interface TabConfig {
   label: string;
 }
 
-const tabs: TabConfig[] = [
+const allTabs: TabConfig[] = [
   { id: 'paroles', label: 'Paroles' },
   { id: 'partitions', label: 'Partitions' },
   { id: 'traductions', label: 'Traductions' },
   { id: 'histoire', label: 'Histoire' },
 ];
 
-export default function ContentTabs() {
+interface ContentTabsProps {
+  availableTabs: ContentTab[];
+}
+
+export default function ContentTabs({ availableTabs }: ContentTabsProps) {
   const { selectedTabs, toggleTab } = useSongStore();
+
+  const tabs = allTabs.filter((tab) => availableTabs.includes(tab.id));
+
+  if (tabs.length === 0) return null;
 
   return (
     <div className="inline-flex items-center gap-1 p-1.5 bg-slate-100 rounded-full mb-6">

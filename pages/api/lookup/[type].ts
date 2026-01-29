@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getPayloadClient } from '@/lib/payload'
 
 // Valid lookup types mapped to collection slugs
-const VALID_LOOKUP_TYPES = ['countries', 'languages', 'genres', 'audiences', 'themes'] as const
+const VALID_LOOKUP_TYPES = ['countries', 'languages', 'genres', 'audiences', 'themes', 'track-types'] as const
 type LookupType = (typeof VALID_LOOKUP_TYPES)[number]
 
 // Response types
@@ -15,7 +15,11 @@ interface LanguageLookupItem extends LookupItem {
   code: string
 }
 
-type LookupResponse = LookupItem[] | LanguageLookupItem[]
+interface TrackTypeLookupItem extends LookupItem {
+  slug: string
+}
+
+type LookupResponse = LookupItem[] | LanguageLookupItem[] | TrackTypeLookupItem[]
 
 function isValidLookupType(type: string): type is LookupType {
   return VALID_LOOKUP_TYPES.includes(type as LookupType)
@@ -61,6 +65,14 @@ export default async function handler(
           ...item,
           code: (doc.code as string) || '',
         } as LanguageLookupItem
+      }
+
+      // Add slug field for track types
+      if (type === 'track-types') {
+        return {
+          ...item,
+          slug: (doc.slug as string) || '',
+        } as TrackTypeLookupItem
       }
 
       return item

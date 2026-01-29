@@ -20,6 +20,14 @@ const MIN_SCALE = 0.5;
 const MAX_SCALE = 3;
 const SCALE_STEP = 0.05;
 
+// Proxy Cloudinary URLs to avoid CORS issues
+function getProxiedUrl(url: string): string {
+  if (url.startsWith('https://res.cloudinary.com/')) {
+    return `/api/proxy/pdf?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
 export default function HistoireSection({ history }: HistoireSectionProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(DEFAULT_SCALE);
@@ -137,7 +145,7 @@ export default function HistoireSection({ history }: HistoireSectionProps) {
         onMouseLeave={handleMouseUp}
       >
         <Document
-          file={currentHistory.pdf}
+          file={getProxiedUrl(currentHistory.pdf)}
           onLoadSuccess={onDocumentLoadSuccess}
           loading={
             <div className="flex items-center justify-center py-8">

@@ -2,8 +2,13 @@
 
 import { useRowLabel } from '@payloadcms/ui'
 
+type TrackType = {
+  name?: string
+  slug?: string
+} | number | null
+
 type TrackRowData = {
-  trackType?: string
+  trackType?: TrackType
 }
 
 type VersionRowData = {
@@ -11,17 +16,12 @@ type VersionRowData = {
   versionId?: string
 }
 
-const trackTypeLabels: Record<string, string> = {
-  groupe: 'Groupe',
-  violon: 'Violon',
-  chant: 'Chant',
-  guitare: 'Guitare',
-  percussion: 'Percussion',
-}
-
 export const AudioTrackRowLabel = () => {
   const { data } = useRowLabel<TrackRowData>()
-  const label = data?.trackType ? trackTypeLabels[data.trackType] || data.trackType : 'Audio Track'
+  let label = 'Audio Track'
+  if (data?.trackType && typeof data.trackType === 'object' && data.trackType.name) {
+    label = data.trackType.name
+  }
   return <span>{label}</span>
 }
 

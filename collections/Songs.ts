@@ -1,4 +1,6 @@
 import type { CollectionConfig } from 'payload'
+import { findRemovedAssets, deleteRemovedAssets, extractCloudinaryAssets } from '../lib/cloudinary-cleanup'
+import { getAllCountries } from '../data/geography'
 
 export const Songs: CollectionConfig = {
   slug: 'songs',
@@ -19,6 +21,30 @@ export const Songs: CollectionConfig = {
             .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
         }
         return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, previousDoc, operation }) => {
+        // Clean up removed Cloudinary assets on update
+        if (operation === 'update' && previousDoc) {
+          const removedAssets = findRemovedAssets(previousDoc, doc)
+          if (removedAssets.length > 0) {
+            console.log(`Cleaning up ${removedAssets.length} removed Cloudinary asset(s)`)
+            await deleteRemovedAssets(removedAssets)
+          }
+        }
+        return doc
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        // Clean up all Cloudinary assets when song is deleted
+        const allAssets = extractCloudinaryAssets(doc)
+        if (allAssets.length > 0) {
+          console.log(`Cleaning up ${allAssets.length} Cloudinary asset(s) from deleted song`)
+          await deleteRemovedAssets(allAssets)
+        }
+        return doc
       },
     ],
   },
@@ -60,9 +86,12 @@ export const Songs: CollectionConfig = {
     // Many-to-many relationships to lookup collections
     {
       name: 'countries',
-      type: 'relationship',
-      relationTo: 'countries',
+      type: 'select',
       hasMany: true,
+      options: getAllCountries().map((country) => ({
+        label: country,
+        value: country,
+      })),
     },
     {
       name: 'languages',
@@ -88,7 +117,7 @@ export const Songs: CollectionConfig = {
       relationTo: 'themes',
       hasMany: true,
     },
-    // Lyrics array - multiple lyrics in different languages
+    // Lyrics array - multiple lyrics in different languages, each with their own translations
     {
       name: 'lyrics',
       type: 'array',
@@ -97,7 +126,7 @@ export const Songs: CollectionConfig = {
         plural: 'Lyrics',
       },
       admin: {
-        description: 'Add lyrics in different languages',
+        description: 'Add lyrics in different languages. Each lyric can have its own translations.',
         components: {
           RowLabel: '@/components/payload/LanguageRowLabel#LyricsRowLabel',
         },
@@ -117,36 +146,35 @@ export const Songs: CollectionConfig = {
             description: 'The lyrics text in this language',
           },
         },
-      ],
-    },
-    // Translations array - multiple translations in different languages
-    {
-      name: 'translations',
-      type: 'array',
-      labels: {
-        singular: 'Translation',
-        plural: 'Translations',
-      },
-      admin: {
-        description: 'Add translations in different languages',
-        components: {
-          RowLabel: '@/components/payload/LanguageRowLabel#TranslationsRowLabel',
-        },
-      },
-      fields: [
         {
-          name: 'language',
-          type: 'relationship',
-          relationTo: 'languages',
-          required: true,
-        },
-        {
-          name: 'text',
-          type: 'textarea',
-          required: true,
-          admin: {
-            description: 'The translation text in this language',
+          name: 'translations',
+          type: 'array',
+          labels: {
+            singular: 'Translation',
+            plural: 'Translations',
           },
+          admin: {
+            description: 'Translations specific to this lyric version',
+            components: {
+              RowLabel: '@/components/payload/LanguageRowLabel#LyricTranslationsRowLabel',
+            },
+          },
+          fields: [
+            {
+              name: 'language',
+              type: 'relationship',
+              relationTo: 'languages',
+              required: true,
+            },
+            {
+              name: 'text',
+              type: 'textarea',
+              required: true,
+              admin: {
+                description: 'The translation text',
+              },
+            },
+          ],
         },
       ],
     },
@@ -233,7 +261,7 @@ export const Songs: CollectionConfig = {
         plural: 'Audio Tracks',
       },
       admin: {
-        description: 'Add audio tracks (groupe, violon, chant, guitare, percussion) with versions',
+        description: 'Add audio tracks with versions',
         components: {
           RowLabel: '@/components/payload/AudioTrackRowLabel#AudioTrackRowLabel',
         },
@@ -241,15 +269,9 @@ export const Songs: CollectionConfig = {
       fields: [
         {
           name: 'trackType',
-          type: 'select',
+          type: 'relationship',
+          relationTo: 'track-types',
           required: true,
-          options: [
-            { label: 'Groupe', value: 'groupe' },
-            { label: 'Violon', value: 'violon' },
-            { label: 'Chant', value: 'chant' },
-            { label: 'Guitare', value: 'guitare' },
-            { label: 'Percussion', value: 'percussion' },
-          ],
         },
         {
           name: 'versions',

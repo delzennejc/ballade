@@ -1,11 +1,12 @@
 export type ContentTab = 'paroles' | 'partitions' | 'traductions' | 'histoire';
 
-export type AudioTrack = 'groupe' | 'violon' | 'chant' | 'guitare' | 'percussion';
+export type AudioTrack = string;
 
 export interface LyricsVersion {
   language: string;
   languageCode: string;
   text: string;
+  translations: TranslationVersion[];
 }
 
 export interface TranslationVersion {
@@ -33,6 +34,7 @@ export interface AudioTrackVersion {
 
 export interface AudioTrackData {
   track: AudioTrack;
+  trackName: string;
   versions: AudioTrackVersion[];
 }
 
@@ -52,7 +54,6 @@ export interface Song {
   thumbnail: string;
   metadata: SongMetadata;
   lyrics: LyricsVersion[];
-  translations: TranslationVersion[];
   musicSheet: MusicSheetVersion[];
   history: HistoryVersion[];
   audioTracks: AudioTrackData[];

@@ -1,20 +1,31 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { MoreVertical } from 'lucide-react';
 import ContentSection from './ContentSection';
 import Dropdown, { DropdownOption } from '@/components/ui/Dropdown';
 import { LyricsVersion } from '@/types/song';
+import { useSongStore } from '@/store/songStore';
 
 interface ParolesSectionProps {
   lyrics: LyricsVersion[];
 }
 
 export default function ParolesSection({ lyrics }: ParolesSectionProps) {
-  const [selectedLanguage, setSelectedLanguage] = useState(
-    lyrics[0]?.languageCode || 'fr'
-  );
+  const { lyricsLanguage, setLyricsLanguage } = useSongStore();
+
+  // Use store value if available in lyrics, otherwise fallback to first available
+  const effectiveLanguage = lyrics.find((l) => l.languageCode === lyricsLanguage)
+    ? lyricsLanguage
+    : lyrics[0]?.languageCode || '';
+
+  // Sync store with effective language on mount or when lyrics change
+  useEffect(() => {
+    if (effectiveLanguage && effectiveLanguage !== lyricsLanguage) {
+      setLyricsLanguage(effectiveLanguage);
+    }
+  }, [effectiveLanguage, lyricsLanguage, setLyricsLanguage]);
 
   const currentLyrics =
-    lyrics.find((l) => l.languageCode === selectedLanguage) || lyrics[0];
+    lyrics.find((l) => l.languageCode === effectiveLanguage) || lyrics[0];
 
   const languageOptions: DropdownOption[] = lyrics.map((lyric) => ({
     id: lyric.languageCode,
@@ -26,8 +37,8 @@ export default function ParolesSection({ lyrics }: ParolesSectionProps) {
       {lyrics.length > 1 && (
         <Dropdown
           options={languageOptions}
-          selectedId={selectedLanguage}
-          onSelect={(id) => setSelectedLanguage(id)}
+          selectedId={effectiveLanguage}
+          onSelect={(id) => setLyricsLanguage(id)}
           align="right"
         />
       )}
