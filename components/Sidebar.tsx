@@ -1,20 +1,9 @@
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import FilterModal, { FilterState } from "./FilterModal"
-
-const songs = [
-  { name: "A LA CLAIRE FONTAINE", slug: "a-la-claire-fontaine" },
-  { name: "A LA UNA", slug: "a-la-una" },
-  { name: "AH VOUS DIRAI-JE MAMAN", slug: "ah-vous-dirai-je-maman" },
-  { name: "ALORS ON DANSE", slug: "alors-on-danse" },
-  { name: "ANEVA STO TRAPEZIMOU", slug: "aneva-sto-trapezimou" },
-  { name: "APALAIS MENESS", slug: "apalais-meness" },
-  { name: "ARMSTRONG", slug: "armstrong" },
-  { name: "JOYEUX ANNIVERSAIRE", slug: "joyeux-anniversaire" },
-  { name: "BELLA CIAO", slug: "bella-ciao" },
-]
+import { useSongsDataStore } from "@/store/useSongsDataStore"
 
 interface SidebarProps {
   searchQuery: string
@@ -36,8 +25,15 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
   const [filters, setFilters] = useState<FilterState>(emptyFilters)
   const router = useRouter()
 
+  const { songs, isLoading, error, fetchSongs } = useSongsDataStore()
+
+  // Fetch songs on mount
+  useEffect(() => {
+    fetchSongs()
+  }, [fetchSongs])
+
   const filteredSongs = songs.filter((song) =>
-    song.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    song.title.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   // Get current slug from router
@@ -155,22 +151,34 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
 
       {/* Song List */}
       <nav className="flex-1 overflow-y-auto">
-        <ul className="space-y-1">
-          {filteredSongs.map((song) => (
-            <li key={song.slug}>
-              <Link
-                href={`/song/${song.slug}`}
-                className={`block w-full text-left py-1.5 text-sm transition-colors ${
-                  currentSlug === song.slug
-                    ? "bg-blue-500 text-white px-4"
-                    : "text-slate-300 hover:bg-slate-600 px-4"
-                }`}
-              >
-                {song.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {isLoading && (
+          <div className="text-slate-400 text-sm px-4 py-2">
+            Chargement...
+          </div>
+        )}
+        {error && (
+          <div className="text-red-400 text-sm px-4 py-2">
+            Erreur: {error}
+          </div>
+        )}
+        {!isLoading && !error && (
+          <ul className="space-y-1">
+            {filteredSongs.map((song) => (
+              <li key={song.slug}>
+                <Link
+                  href={`/song/${song.slug}`}
+                  className={`block w-full text-left py-1.5 text-sm transition-colors ${
+                    currentSlug === song.slug
+                      ? "bg-blue-500 text-white px-4"
+                      : "text-slate-300 hover:bg-slate-600 px-4"
+                  }`}
+                >
+                  {song.title.toUpperCase()}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </nav>
     </aside>
   )

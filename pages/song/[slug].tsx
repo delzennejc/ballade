@@ -8,8 +8,8 @@ import AudioPlayer from '@/components/song/AudioPlayer';
 import ContentTabs from '@/components/song/ContentTabs';
 import ParolesSection from '@/components/song/ParolesSection';
 import TraductionsSection from '@/components/song/TraductionsSection';
-import { getSongBySlug } from '@/lib/mockData';
 import { useSongStore } from '@/store/songStore';
+import { useSongsDataStore } from '@/store/useSongsDataStore';
 
 // Dynamic imports to avoid SSR issues
 const PartitionsSection = dynamic(
@@ -26,16 +26,64 @@ export default function SongPage() {
   const router = useRouter();
   const { slug } = router.query;
   const { selectedTabs, resetState } = useSongStore();
+  const { currentSong: song, isLoading, error, fetchSongBySlug, clearCurrentSong } = useSongsDataStore();
 
-  const song = typeof slug === 'string' ? getSongBySlug(slug) : undefined;
+  // Fetch song when slug changes
+  useEffect(() => {
+    if (typeof slug === 'string') {
+      fetchSongBySlug(slug);
+    }
+  }, [slug, fetchSongBySlug]);
 
   // Reset state when navigating to a new song
   useEffect(() => {
     return () => {
       resetState();
+      clearCurrentSong();
     };
-  }, [slug, resetState]);
+  }, [slug, resetState, clearCurrentSong]);
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen bg-white font-league">
+        <SidebarWrapper />
+        <div className="flex-1 flex flex-col">
+          <main className="flex-1 flex items-center justify-center bg-blue-50">
+            <div className="text-center">
+              <div className="animate-pulse">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-slate-200"></div>
+                <p className="text-slate-600">Chargement...</p>
+              </div>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-white font-league">
+        <SidebarWrapper />
+        <div className="flex-1 flex flex-col">
+          <main className="flex-1 flex items-center justify-center bg-blue-50">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-slate-800 mb-2">
+                Erreur
+              </h1>
+              <p className="text-slate-600">{error}</p>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      </div>
+    );
+  }
+
+  // Not found state
   if (!song) {
     return (
       <div className="flex min-h-screen bg-white font-league">
