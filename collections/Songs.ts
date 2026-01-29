@@ -209,5 +209,74 @@ export const Songs: CollectionConfig = {
         },
       ],
     },
+    // Audio tracks array - multiple tracks with versions
+    {
+      name: 'audioTracks',
+      type: 'array',
+      labels: {
+        singular: 'Audio Track',
+        plural: 'Audio Tracks',
+      },
+      admin: {
+        description: 'Add audio tracks (groupe, violon, chant, guitare, percussion) with versions',
+        components: {
+          RowLabel: '@/components/payload/AudioTrackRowLabel#AudioTrackRowLabel',
+        },
+      },
+      fields: [
+        {
+          name: 'trackType',
+          type: 'select',
+          required: true,
+          options: [
+            { label: 'Groupe', value: 'groupe' },
+            { label: 'Violon', value: 'violon' },
+            { label: 'Chant', value: 'chant' },
+            { label: 'Guitare', value: 'guitare' },
+            { label: 'Percussion', value: 'percussion' },
+          ],
+        },
+        {
+          name: 'versions',
+          type: 'array',
+          labels: {
+            singular: 'Version',
+            plural: 'Versions',
+          },
+          admin: {
+            description: 'Add different versions of this track',
+            components: {
+              RowLabel: '@/components/payload/AudioTrackRowLabel#AudioVersionRowLabel',
+            },
+          },
+          fields: [
+            {
+              name: 'versionId',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Unique identifier for this version (e.g., v1, v2)',
+              },
+            },
+            {
+              name: 'name',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Display name for this version',
+              },
+            },
+            {
+              name: 'audioPublicId',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Cloudinary public ID for the audio file',
+              },
+            },
+          ],
+        },
+      ],
+    },
   ],
 }
