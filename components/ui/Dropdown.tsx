@@ -117,7 +117,7 @@ export default function Dropdown({
 
                 {/* Submenu */}
                 {hasSubOptions && isExpanded && (
-                  <div className="absolute top-0 right-full mr-1 bg-white rounded-lg shadow-lg min-w-32">
+                  <div className="absolute top-0 right-full mr-1 bg-white rounded-lg shadow-lg min-w-48">
                     {option.subOptions?.map((subOption, subIndex) => {
                       const isSubSelected =
                         isSelected && selectedSubId === subOption.id
