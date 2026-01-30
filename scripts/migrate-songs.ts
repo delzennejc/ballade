@@ -155,20 +155,20 @@ async function migrateSongs() {
       })
       .filter((l): l is NonNullable<typeof l> => l !== null)
 
-    // Build music sheets array with placeholder public IDs
-    const musicSheets = song.musicSheet
-      .map((sheet) => {
-        const langId = getLanguageId(sheet.language, sheet.languageCode)
+    // Build scores array with placeholder public IDs
+    const scores = song.scores
+      .map((score: { language: string; languageCode: string; pdf: string }) => {
+        const langId = getLanguageId(score.language, score.languageCode)
         if (!langId) {
-          console.warn(`    Warning: Language not found for music sheet: ${sheet.language}`)
+          console.warn(`    Warning: Language not found for score: ${score.language}`)
           return null
         }
         return {
           language: langId,
-          pdfPublicId: `songs/${song.slug}/sheets/score`,
+          pdfPublicId: `songs/${song.slug}/scores/score`,
         }
       })
-      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .filter((s: unknown): s is NonNullable<typeof s> => s !== null)
 
     // Build history documents array with placeholder public IDs
     const historyDocuments = song.history
@@ -209,7 +209,7 @@ async function migrateSongs() {
         audiences: audienceIds,
         themes: themeIds,
         lyrics,
-        musicSheets,
+        scores,
         historyDocuments,
         audioTracks,
       },

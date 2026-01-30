@@ -883,28 +883,28 @@ async function migrateSong(
     })
 
     // 4. Upload PDFs to Cloudinary
-    const musicSheets: { language: number; pdfPublicId: string }[] = []
+    const scores: { language: number; pdfPublicId: string }[] = []
     const historyDocuments: { language: number; pdfPublicId: string }[] = []
 
-    // Music score
+    // Score
     if (folder.musicScorePdf) {
-      console.log(`  Uploading music score...`)
+      console.log(`  Uploading score...`)
       try {
         const result = await uploadToCloudinary(
           folder.musicScorePdf,
-          `songs/${slug}/sheets`,
+          `songs/${slug}/scores`,
           'raw'
         )
-        // Use French as default language for music scores
+        // Use French as default language for scores
         const frId = resolveLanguageId('French', maps)
         if (frId) {
-          musicSheets.push({ language: frId, pdfPublicId: result.publicId })
-          logCloudinaryUpload(songName, 'Music Score', folder.musicScorePdf, result.publicId, 'success')
+          scores.push({ language: frId, pdfPublicId: result.publicId })
+          logCloudinaryUpload(songName, 'Score', folder.musicScorePdf, result.publicId, 'success')
           console.log(`    Uploaded: ${result.publicId}`)
         }
       } catch (error: any) {
-        errors.push(`Music score upload failed: ${error.message}`)
-        logError(songName, 'Music Score Upload', error.message)
+        errors.push(`Score upload failed: ${error.message}`)
+        logError(songName, 'Score Upload', error.message)
       }
     }
 
@@ -1041,7 +1041,7 @@ async function migrateSong(
       themes: themeIds,
       lyrics,
       translations,
-      musicSheets,
+      scores,
       historyDocuments,
       audioTracks,
     }
@@ -1051,7 +1051,7 @@ async function migrateSong(
     console.log(`    Difficulty: ${songData.difficulty}`)
     console.log(`    Lyrics: ${songData.lyrics.length}`)
     console.log(`    Translations: ${songData.translations.length}`)
-    console.log(`    Music Sheets: ${songData.musicSheets.length}`)
+    console.log(`    Scores: ${songData.scores.length}`)
     console.log(`    History Docs: ${songData.historyDocuments.length}`)
     console.log(`    Audio Tracks: ${songData.audioTracks.length}`)
 

@@ -21,9 +21,9 @@ function getAvailableTabs(song: Song | null): ContentTab[] {
     available.push('paroles');
   }
 
-  // Partitions: has music sheets with PDF
-  if (song.musicSheet?.some((m) => m.pdf?.trim())) {
-    available.push('partitions');
+  // Scores: has scores with PDF
+  if (song.scores?.some((m) => m.pdf?.trim())) {
+    available.push('scores');
   }
 
   // Traductions: has lyrics with translations
@@ -40,8 +40,8 @@ function getAvailableTabs(song: Song | null): ContentTab[] {
 }
 
 // Dynamic imports to avoid SSR issues
-const PartitionsSection = dynamic(
-  () => import('@/components/song/PartitionsSection'),
+const ScoresSection = dynamic(
+  () => import('@/components/song/ScoresSection'),
   { ssr: false }
 );
 
@@ -172,8 +172,8 @@ export default function SongPage() {
                 switch (tab) {
                   case 'paroles':
                     return <ParolesSection key={tab} lyrics={song.lyrics} />;
-                  case 'partitions':
-                    return <PartitionsSection key={tab} musicSheet={song.musicSheet} />;
+                  case 'scores':
+                    return <ScoresSection key={tab} scores={song.scores} />;
                   case 'traductions':
                     return <TraductionsSection key={tab} lyrics={song.lyrics} />;
                   case 'histoire':

@@ -128,7 +128,7 @@ export const translations: Record<AppLanguage, Translations> = {
 
     // Content Tabs
     lyrics: 'Lyrics',
-    sheets: 'Sheet music',
+    sheets: 'Scores',
     translations: 'Translations',
     history: 'History',
 

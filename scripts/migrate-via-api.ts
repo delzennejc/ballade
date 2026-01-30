@@ -139,7 +139,7 @@ Te he amado por mucho tiempo
 Nunca te olvidaré`,
       },
     ],
-    musicSheet: [{ language: 'Français', languageCode: 'fr' }],
+    scores: [{ language: 'Français', languageCode: 'fr', pdf: '' }],
     history: [{ language: 'Français', languageCode: 'fr' }],
     audioTracks: [
       { track: 'groupe', versions: [{ id: 'groupe-fr', name: 'Français' }] },
@@ -236,7 +236,7 @@ O partisan, take me away
 Because I feel I'm going to die`,
       },
     ],
-    musicSheet: [{ language: 'Français', languageCode: 'fr' }],
+    scores: [{ language: 'Français', languageCode: 'fr', pdf: '' }],
     history: [{ language: 'Français', languageCode: 'fr' }],
     audioTracks: [
       { track: 'groupe', versions: [{ id: 'groupe-it', name: 'Italien' }] },
@@ -319,7 +319,7 @@ I say that sweets
 Are better than the little ones.`,
       },
     ],
-    musicSheet: [{ language: 'Français', languageCode: 'fr' }],
+    scores: [{ language: 'Français', languageCode: 'fr', pdf: '' }],
     history: [{ language: 'Français', languageCode: 'fr' }],
     audioTracks: [
       { track: 'groupe', versions: [{ id: 'groupe-fr', name: 'Français' }] },
@@ -599,22 +599,22 @@ async function migrateSongs(lookups: {
       })
       .filter((t): t is NonNullable<typeof t> => t !== null)
 
-    // Build music sheets array with placeholder public IDs
-    const musicSheets = song.musicSheet
-      .map((sheet) => {
-        const langId = getLanguageId(sheet.language, sheet.languageCode)
+    // Build scores array with placeholder public IDs
+    const scores = song.scores
+      .map((score: { language: string; languageCode: string; pdf: string }) => {
+        const langId = getLanguageId(score.language, score.languageCode)
         if (!langId) {
           console.warn(
-            `    Warning: Language not found for music sheet: ${sheet.language}`
+            `    Warning: Language not found for score: ${score.language}`
           )
           return null
         }
         return {
           language: langId,
-          pdfPublicId: `songs/${song.slug}/sheets/score`,
+          pdfPublicId: `songs/${song.slug}/scores/score`,
         }
       })
-      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .filter((s: unknown): s is NonNullable<typeof s> => s !== null)
 
     // Build history documents array with placeholder public IDs
     const historyDocuments = song.history
@@ -664,7 +664,7 @@ async function migrateSongs(lookups: {
       themes: themeIds,
       lyrics,
       translations,
-      musicSheets,
+      scores,
       historyDocuments,
       audioTracks,
     }

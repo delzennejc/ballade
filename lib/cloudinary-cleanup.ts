@@ -30,7 +30,7 @@ export async function deleteFromCloudinary(
 // Extract all Cloudinary public IDs from a song document
 interface SongData {
   thumbnailPublicId?: string
-  musicSheets?: Array<{ pdfPublicId?: string }>
+  scores?: Array<{ pdfPublicId?: string }>
   historyDocuments?: Array<{ pdfPublicId?: string }>
   audioTracks?: Array<{
     versions?: Array<{ audioPublicId?: string }>
@@ -50,11 +50,11 @@ export function extractCloudinaryAssets(data: SongData): CloudinaryAsset[] {
     assets.push({ publicId: data.thumbnailPublicId, resourceType: 'image' })
   }
 
-  // Music sheets (raw/PDF)
-  if (data.musicSheets) {
-    for (const sheet of data.musicSheets) {
-      if (sheet.pdfPublicId) {
-        assets.push({ publicId: sheet.pdfPublicId, resourceType: 'raw' })
+  // Scores (raw/PDF)
+  if (data.scores) {
+    for (const score of data.scores) {
+      if (score.pdfPublicId) {
+        assets.push({ publicId: score.pdfPublicId, resourceType: 'raw' })
       }
     }
   }

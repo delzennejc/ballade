@@ -178,18 +178,18 @@ export const Songs: CollectionConfig = {
         },
       ],
     },
-    // Music sheets array - PDF documents per language
+    // Scores array - PDF documents per language
     {
-      name: 'musicSheets',
+      name: 'scores',
       type: 'array',
       labels: {
-        singular: 'Music Sheet',
-        plural: 'Music Sheets',
+        singular: 'Score',
+        plural: 'Scores',
       },
       admin: {
-        description: 'Add music sheet PDFs in different languages',
+        description: 'Add score PDFs in different languages',
         components: {
-          RowLabel: '@/components/payload/LanguageRowLabel#MusicSheetsRowLabel',
+          RowLabel: '@/components/payload/LanguageRowLabel#ScoresRowLabel',
         },
       },
       fields: [
@@ -204,9 +204,9 @@ export const Songs: CollectionConfig = {
           type: 'text',
           required: true,
           admin: {
-            description: 'Upload music sheet PDF to Cloudinary',
+            description: 'Upload score PDF to Cloudinary',
             custom: {
-              folderType: 'sheets',
+              folderType: 'scores',
             },
             components: {
               Field: '@/components/payload/CloudinaryPdfField#CloudinaryPdfField',

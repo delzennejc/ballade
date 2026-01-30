@@ -20,10 +20,10 @@ export const TranslationsRowLabel = () => {
   return <span>{languageName || 'Translation'}</span>
 }
 
-export const MusicSheetsRowLabel = () => {
+export const ScoresRowLabel = () => {
   const { data } = useRowLabel<RowData>()
   const languageName = typeof data?.language === 'object' ? data?.language?.name : data?.language
-  return <span>{languageName || 'Music Sheet'}</span>
+  return <span>{languageName || 'Score'}</span>
 }
 
 export const HistoryDocumentsRowLabel = () => {

@@ -103,7 +103,7 @@ I will never forget you`,
         translations: [],
       },
     ],
-    musicSheet: [
+    scores: [
       {
         language: "Français",
         languageCode: "fr",
@@ -214,7 +214,7 @@ Car je sens que je vais mourir`,
         translations: [],
       },
     ],
-    musicSheet: [
+    scores: [
       {
         language: "Français",
         languageCode: "fr",
@@ -313,7 +313,7 @@ Are better than the little ones.`,
         ],
       },
     ],
-    musicSheet: [
+    scores: [
       {
         language: "Français",
         languageCode: "fr",

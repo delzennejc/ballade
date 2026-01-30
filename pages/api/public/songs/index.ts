@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { Where } from 'payload'
 import { getPayloadClient } from '@/lib/payload'
-import type { Song, SongMetadata, LyricsVersion, MusicSheetVersion, HistoryVersion, AudioTrackData } from '@/types/song'
+import type { Song, SongMetadata, LyricsVersion, ScoreVersion, HistoryVersion, AudioTrackData } from '@/types/song'
 
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
@@ -74,11 +74,11 @@ function transformSong(doc: Record<string, unknown>): Song {
     })),
   }))
 
-  // Transform music sheets array
-  const musicSheet: MusicSheetVersion[] = ((doc.musicSheets as Array<{ language?: { name?: string; code?: string }; pdfPublicId?: string }>) || []).map((sheet) => ({
-    language: extractName(sheet.language),
-    languageCode: extractCode(sheet.language),
-    pdf: buildCloudinaryUrl(sheet.pdfPublicId || '', 'raw'),
+  // Transform scores array
+  const scores: ScoreVersion[] = ((doc.scores as Array<{ language?: { name?: string; code?: string }; pdfPublicId?: string }>) || []).map((score) => ({
+    language: extractName(score.language),
+    languageCode: extractCode(score.language),
+    pdf: buildCloudinaryUrl(score.pdfPublicId || '', 'raw'),
   }))
 
   // Transform history documents array
@@ -114,7 +114,7 @@ function transformSong(doc: Record<string, unknown>): Song {
     thumbnail: buildCloudinaryUrl((doc.thumbnailPublicId as string) || '', 'image'),
     metadata,
     lyrics,
-    musicSheet,
+    scores,
     history,
     audioTracks,
   }

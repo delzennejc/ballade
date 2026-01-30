@@ -4,15 +4,15 @@ import { useState, useRef, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { MoreVertical, ZoomIn, ZoomOut } from 'lucide-react';
 import ContentSection from './ContentSection';
-import { MusicSheetVersion } from '@/types/song';
+import { ScoreVersion } from '@/types/song';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-interface PartitionsSectionProps {
-  musicSheet: MusicSheetVersion[];
+interface ScoresSectionProps {
+  scores: ScoreVersion[];
 }
 
 const DEFAULT_SCALE = 1;
@@ -28,9 +28,9 @@ function getProxiedUrl(url: string): string {
   return url;
 }
 
-export default function PartitionsSection({
-  musicSheet,
-}: PartitionsSectionProps) {
+export default function ScoresSection({
+  scores,
+}: ScoresSectionProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(DEFAULT_SCALE);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
@@ -110,17 +110,17 @@ export default function PartitionsSection({
     </div>
   );
 
-  const currentSheet = musicSheet[0];
+  const currentScore = scores[0];
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
   }
 
-  if (!currentSheet?.pdf) {
+  if (!currentScore?.pdf) {
     return (
       <ContentSection
         title="Partitions"
-        headerImage="/partition-header.svg"
+        headerImage="/score-header.svg"
         headerActions={headerActions}
       >
         <div className="text-slate-700 text-[22px] leading-8">
@@ -135,7 +135,7 @@ export default function PartitionsSection({
   return (
     <ContentSection
       title="Partitions"
-      headerImage="/partition-header.svg"
+      headerImage="/score-header.svg"
       headerActions={headerActions}
     >
       <div
@@ -147,7 +147,7 @@ export default function PartitionsSection({
         onMouseLeave={handleMouseUp}
       >
         <Document
-          file={getProxiedUrl(currentSheet.pdf)}
+          file={getProxiedUrl(currentScore.pdf)}
           onLoadSuccess={onDocumentLoadSuccess}
           loading={
             <div className="flex items-center justify-center py-8">

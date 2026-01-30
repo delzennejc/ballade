@@ -1,4 +1,4 @@
-export type ContentTab = 'paroles' | 'partitions' | 'traductions' | 'histoire';
+export type ContentTab = 'paroles' | 'scores' | 'traductions' | 'histoire';
 
 export type AudioTrack = string;
 
@@ -21,7 +21,7 @@ export interface HistoryVersion {
   pdf: string;
 }
 
-export interface MusicSheetVersion {
+export interface ScoreVersion {
   language: string;
   languageCode: string;
   pdf: string;
@@ -54,7 +54,7 @@ export interface Song {
   thumbnail: string;
   metadata: SongMetadata;
   lyrics: LyricsVersion[];
-  musicSheet: MusicSheetVersion[];
+  scores: ScoreVersion[];
   history: HistoryVersion[];
   audioTracks: AudioTrackData[];
 }

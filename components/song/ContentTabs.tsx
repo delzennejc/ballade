@@ -11,7 +11,7 @@ interface TabConfig {
 
 const tabConfigs: TabConfig[] = [
   { id: 'paroles', labelKey: 'lyrics' },
-  { id: 'partitions', labelKey: 'sheets' },
+  { id: 'scores', labelKey: 'sheets' },
   { id: 'traductions', labelKey: 'translations' },
   { id: 'histoire', labelKey: 'history' },
 ];
