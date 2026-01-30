@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 interface ContentSectionProps {
   title: string;
   headerImage: string;
+  titleActions?: ReactNode;
   headerActions?: ReactNode;
   children: ReactNode;
 }
@@ -11,6 +12,7 @@ interface ContentSectionProps {
 export default function ContentSection({
   title,
   headerImage,
+  titleActions,
   headerActions,
   children,
 }: ContentSectionProps) {
@@ -29,7 +31,10 @@ export default function ContentSection({
 
       {/* Title row */}
       <div className="flex items-center justify-between py-3 pl-3">
-        <h3 className="text-[#3D5A73] font-bold text-[26px]">{title}</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-[#3D5A73] font-bold text-[26px]">{title}</h3>
+          {titleActions}
+        </div>
         {headerActions && <div className="flex items-center gap-2">{headerActions}</div>}
       </div>
 

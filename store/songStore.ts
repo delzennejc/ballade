@@ -30,8 +30,10 @@ interface SongState {
   // Content language preferences
   lyricsLanguage: string;
   translationLanguage: string;
+  historyLanguage: string;
   setLyricsLanguage: (language: string) => void;
   setTranslationLanguage: (language: string) => void;
+  setHistoryLanguage: (language: string) => void;
 
   // Reset state for new song
   resetState: () => void;
@@ -48,6 +50,7 @@ const initialState = {
   selectedVersionId: '',
   lyricsLanguage: 'fr',
   translationLanguage: 'en',
+  historyLanguage: 'fr',
 };
 
 export const useSongStore = create<SongState>((set) => ({
@@ -88,6 +91,8 @@ export const useSongStore = create<SongState>((set) => ({
   setLyricsLanguage: (lyricsLanguage) => set({ lyricsLanguage }),
 
   setTranslationLanguage: (translationLanguage) => set({ translationLanguage }),
+
+  setHistoryLanguage: (historyLanguage) => set({ historyLanguage }),
 
   resetState: () => set(initialState),
 }));

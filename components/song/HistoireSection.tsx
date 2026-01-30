@@ -4,7 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { MoreVertical, ZoomIn, ZoomOut } from 'lucide-react';
 import ContentSection from './ContentSection';
+import Dropdown, { DropdownOption } from '@/components/ui/Dropdown';
 import { HistoryVersion } from '@/types/song';
+import { useSongStore } from '@/store/songStore';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -37,7 +39,29 @@ export default function HistoireSection({ history }: HistoireSectionProps) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
 
+  const { historyLanguage, setHistoryLanguage } = useSongStore();
+
   const isZoomed = scale > DEFAULT_SCALE;
+
+  // Create language options from available history versions
+  const languageOptions: DropdownOption[] = history.map((h) => ({
+    id: h.languageCode,
+    label: h.language,
+  }));
+
+  // Find the current history version based on selected language
+  const currentHistory =
+    history.find((h) => h.languageCode === historyLanguage) || history[0];
+
+  // Get effective language (fallback to first available if selected not found)
+  const effectiveLanguage = currentHistory?.languageCode || history[0]?.languageCode || 'fr';
+
+  // Sync language if the selected one is not available
+  useEffect(() => {
+    if (history.length > 0 && !history.find((h) => h.languageCode === historyLanguage)) {
+      setHistoryLanguage(history[0].languageCode);
+    }
+  }, [history, historyLanguage, setHistoryLanguage]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isZoomed || !containerRef.current) return;
@@ -77,7 +101,7 @@ export default function HistoireSection({ history }: HistoireSectionProps) {
   const zoomOut = () => setScale((s) => Math.max(s - SCALE_STEP, MIN_SCALE));
   const resetZoom = () => setScale(DEFAULT_SCALE);
 
-  const headerActions = (
+  const titleActions = (
     <div className="flex items-center gap-1">
       <button
         onClick={zoomOut}
@@ -102,13 +126,24 @@ export default function HistoireSection({ history }: HistoireSectionProps) {
       >
         <ZoomIn className="w-5 h-5" />
       </button>
+    </div>
+  );
+
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      {history.length > 1 && (
+        <Dropdown
+          options={languageOptions}
+          selectedId={effectiveLanguage}
+          onSelect={(id) => setHistoryLanguage(id)}
+          align="right"
+        />
+      )}
       <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
         <MoreVertical className="w-5 h-5" />
       </button>
     </div>
   );
-
-  const currentHistory = history[0];
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
@@ -119,6 +154,7 @@ export default function HistoireSection({ history }: HistoireSectionProps) {
       <ContentSection
         title="Histoire"
         headerImage="/histoire-header.svg"
+        titleActions={titleActions}
         headerActions={headerActions}
       >
         <div className="text-slate-700 text-[22px] leading-8">
@@ -134,6 +170,7 @@ export default function HistoireSection({ history }: HistoireSectionProps) {
     <ContentSection
       title="Histoire"
       headerImage="/histoire-header.svg"
+      titleActions={titleActions}
       headerActions={headerActions}
     >
       <div

@@ -26,12 +26,7 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
   const [filters, setFilters] = useState<FilterState>(emptyFilters)
   const router = useRouter()
 
-  const { songs, isLoading, error, fetchSongs } = useSongsDataStore()
-
-  // Fetch songs on mount
-  useEffect(() => {
-    fetchSongs()
-  }, [fetchSongs])
+  const { songs, isLoading, error } = useSongsDataStore()
 
   // Filter songs by search query and active filters, sorted alphabetically
   const filteredSongs = useMemo(() => {

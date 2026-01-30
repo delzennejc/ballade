@@ -87,6 +87,22 @@ export function useAudioPlayer() {
     }
   }, [isLooping]);
 
+  // Stop audio when navigating away from the page
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+
+    router.events.on('routeChangeStart', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange);
+    };
+  }, [router.events]);
+
   // Load audio when track or version changes
   useEffect(() => {
     const loadAudio = async () => {
