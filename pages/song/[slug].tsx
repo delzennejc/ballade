@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import Sidebar from '@/components/Sidebar';
 import Footer from '@/components/Footer';
 import SongHeader from '@/components/song/SongHeader';
 import AudioPlayer from '@/components/song/AudioPlayer';
@@ -95,62 +94,53 @@ export default function SongPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex min-h-screen bg-white font-league">
-        <SidebarWrapper />
-        <div className="flex-1 flex flex-col">
-          <main className="flex-1 flex items-center justify-center bg-blue-50">
-            <div className="text-center">
-              <div className="animate-pulse">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-slate-200"></div>
-                <p className="text-slate-600">Chargement...</p>
-              </div>
+      <>
+        <main className="flex-1 flex items-center justify-center bg-blue-50">
+          <div className="text-center">
+            <div className="animate-pulse">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-slate-200"></div>
+              <p className="text-slate-600">Chargement...</p>
             </div>
-          </main>
-          <Footer />
-        </div>
-      </div>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-screen bg-white font-league">
-        <SidebarWrapper />
-        <div className="flex-1 flex flex-col">
-          <main className="flex-1 flex items-center justify-center bg-blue-50">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-slate-800 mb-2">
-                Erreur
-              </h1>
-              <p className="text-slate-600">{error}</p>
-            </div>
-          </main>
-          <Footer />
-        </div>
-      </div>
+      <>
+        <main className="flex-1 flex items-center justify-center bg-blue-50">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">
+              Erreur
+            </h1>
+            <p className="text-slate-600">{error}</p>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 
   // Not found state
   if (!song) {
     return (
-      <div className="flex min-h-screen bg-white font-league">
-        <SidebarWrapper />
-        <div className="flex-1 flex flex-col">
-          <main className="flex-1 flex items-center justify-center bg-blue-50">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-slate-800 mb-2">
-                Chanson non trouvée
-              </h1>
-              <p className="text-slate-600">
-                La chanson que vous recherchez n&apos;existe pas.
-              </p>
-            </div>
-          </main>
-          <Footer />
-        </div>
-      </div>
+      <>
+        <main className="flex-1 flex items-center justify-center bg-blue-50">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">
+              Chanson non trouvée
+            </h1>
+            <p className="text-slate-600">
+              La chanson que vous recherchez n&apos;existe pas.
+            </p>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 
@@ -160,59 +150,43 @@ export default function SongPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white font-league">
-      <SidebarWrapper />
+    <>
+      <main className="flex-1 bg-blue-50 p-6 overflow-auto">
+        <div className="max-w-6xl mx-auto">
+          {/* Song Header */}
+          <SongHeader song={song} />
 
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 bg-blue-50 p-6 overflow-auto">
-          <div className="max-w-6xl mx-auto">
-            {/* Song Header */}
-            <SongHeader song={song} />
+          {/* Audio Player - only show if there are audio tracks */}
+          {song.audioTracks?.length > 0 && (
+            <AudioPlayer audioTracks={song.audioTracks} />
+          )}
 
-            {/* Audio Player - only show if there are audio tracks */}
-            {song.audioTracks?.length > 0 && (
-              <AudioPlayer audioTracks={song.audioTracks} />
-            )}
+          {/* Content Container */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            {/* Content Tabs */}
+            <ContentTabs availableTabs={availableTabs} />
 
-            {/* Content Container */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              {/* Content Tabs */}
-              <ContentTabs availableTabs={availableTabs} />
-
-              {/* Content Sections - rendered in selection order */}
-              <div className={`grid ${getGridClass()} gap-6`}>
-                {selectedTabs.filter((tab) => availableTabs.includes(tab)).map((tab) => {
-                  switch (tab) {
-                    case 'paroles':
-                      return <ParolesSection key={tab} lyrics={song.lyrics} />;
-                    case 'partitions':
-                      return <PartitionsSection key={tab} musicSheet={song.musicSheet} />;
-                    case 'traductions':
-                      return <TraductionsSection key={tab} lyrics={song.lyrics} />;
-                    case 'histoire':
-                      return <HistoireSection key={tab} history={song.history} />;
-                    default:
-                      return null;
-                  }
-                })}
-              </div>
+            {/* Content Sections - rendered in selection order */}
+            <div className={`grid ${getGridClass()} gap-6`}>
+              {selectedTabs.filter((tab) => availableTabs.includes(tab)).map((tab) => {
+                switch (tab) {
+                  case 'paroles':
+                    return <ParolesSection key={tab} lyrics={song.lyrics} />;
+                  case 'partitions':
+                    return <PartitionsSection key={tab} musicSheet={song.musicSheet} />;
+                  case 'traductions':
+                    return <TraductionsSection key={tab} lyrics={song.lyrics} />;
+                  case 'histoire':
+                    return <HistoireSection key={tab} history={song.history} />;
+                  default:
+                    return null;
+                }
+              })}
             </div>
           </div>
-        </main>
-        <Footer />
-      </div>
-    </div>
-  );
-}
-
-// Wrapper component for Sidebar to handle state
-function SidebarWrapper() {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  return (
-    <Sidebar
-      searchQuery={searchQuery}
-      setSearchQuery={setSearchQuery}
-    />
+        </div>
+      </main>
+      <Footer />
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useSongsDataStore } from "@/store/useSongsDataStore";
 import { useLookupStore } from "@/store/useLookupStore";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import Sidebar from "@/components/Sidebar";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { songs, fetchSongs } = useSongsDataStore();
@@ -20,7 +21,12 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <LanguageProvider>
-      <Component {...pageProps} />
+      <div className="flex min-h-screen bg-white font-league">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Component {...pageProps} />
+        </div>
+      </div>
     </LanguageProvider>
   );
 }

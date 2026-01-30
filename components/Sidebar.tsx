@@ -4,13 +4,9 @@ import { useState, useMemo } from "react"
 import { useRouter } from "next/router"
 import FilterModal, { FilterState } from "./FilterModal"
 import { useSongsDataStore } from "@/store/useSongsDataStore"
+import { useSidebarStore } from "@/store/useSidebarStore"
 import { getRegionByCountry } from "@/data/geography"
 import { useLanguage } from "@/contexts/LanguageContext"
-
-interface SidebarProps {
-  searchQuery: string
-  setSearchQuery: (query: string) => void
-}
 
 const emptyFilters: FilterState = {
   geographicOrigin: [],
@@ -21,7 +17,8 @@ const emptyFilters: FilterState = {
   difficultyLevel: [],
 }
 
-export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
+export default function Sidebar() {
+  const { searchQuery, setSearchQuery } = useSidebarStore()
   const { language, setLanguage, t } = useLanguage()
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [filters, setFilters] = useState<FilterState>(emptyFilters)
