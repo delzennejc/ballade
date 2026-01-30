@@ -1,10 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/router"
 import FilterModal, { FilterState } from "./FilterModal"
 import { useSongsDataStore } from "@/store/useSongsDataStore"
 import { getRegionByCountry } from "@/data/geography"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface SidebarProps {
   searchQuery: string
@@ -21,7 +22,7 @@ const emptyFilters: FilterState = {
 }
 
 export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
-  const [language, setLanguage] = useState<"FR" | "EN">("FR")
+  const { language, setLanguage, t } = useLanguage()
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [filters, setFilters] = useState<FilterState>(emptyFilters)
   const router = useRouter()
@@ -115,9 +116,9 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
       {/* Language Selector */}
       <div className="flex justify-center gap-2 mb-4 px-4">
         <button
-          onClick={() => setLanguage("FR")}
+          onClick={() => setLanguage("fr")}
           className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-            language === "FR"
+            language === "fr"
               ? "bg-blue-500 text-white"
               : "bg-slate-600 text-slate-300 hover:bg-slate-500"
           }`}
@@ -125,9 +126,9 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
           FR
         </button>
         <button
-          onClick={() => setLanguage("EN")}
+          onClick={() => setLanguage("en")}
           className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-            language === "EN"
+            language === "en"
               ? "bg-blue-500 text-white"
               : "bg-slate-600 text-slate-300 hover:bg-slate-500"
           }`}
@@ -141,7 +142,7 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
         <div className="relative">
           <input
             type="text"
-            placeholder="Rechercher"
+            placeholder={t('search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-3 py-2 pr-8 bg-slate-600 border border-slate-500 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-400"
@@ -164,7 +165,7 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
 
       {/* Song List Header */}
       <h2 className="text-sm font-semibold text-white mb-3 tracking-wide px-4">
-        LISTE DES CHANSONS
+        {t('songList')}
       </h2>
 
       {/* Filters Button */}
@@ -185,7 +186,7 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
             d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
           />
         </svg>
-        Filtres
+        {t('filters')}
         {activeFiltersCount > 0 && (
           <span className="w-5 h-5 flex items-center justify-center bg-blue-500 rounded-full text-xs font-semibold">
             <span className="pt-0.5">{activeFiltersCount}</span>
@@ -208,12 +209,12 @@ export default function Sidebar({ searchQuery, setSearchQuery }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto">
         {isLoading && (
           <div className="text-slate-400 text-sm px-4 py-2">
-            Chargement...
+            {t('loading')}
           </div>
         )}
         {error && (
           <div className="text-red-400 text-sm px-4 py-2">
-            Erreur: {error}
+            {t('error')}: {error}
           </div>
         )}
         {!isLoading && !error && (

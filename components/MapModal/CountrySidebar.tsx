@@ -2,6 +2,9 @@ import { X, Music } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Song } from '@/types/song'
+import { useLanguage } from '@/contexts/LanguageContext'
+import { useLookupStore } from '@/store/useLookupStore'
+import { translateCountry } from '@/data/geography'
 
 interface CountrySidebarProps {
   country: string | null
@@ -14,7 +17,16 @@ export default function CountrySidebar({
   songs,
   onClose,
 }: CountrySidebarProps) {
+  const { language, t } = useLanguage()
+  const { translateLookup } = useLookupStore()
+
   if (!country) return null
+
+  // Translate country name if in English mode
+  const displayCountry = language === 'en' ? translateCountry(country, 'fr', 'en') : country
+
+  // Helper to get song count text
+  const songCountText = songs.length === 1 ? t('song') : t('songs')
 
   return (
     <>
@@ -30,15 +42,15 @@ export default function CountrySidebar({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
           <div>
-            <h3 className="font-semibold text-gray-800">{country}</h3>
+            <h3 className="font-semibold text-gray-800">{displayCountry}</h3>
             <p className="text-sm text-gray-500">
-              {songs.length} chanson{songs.length > 1 ? 's' : ''}
+              {songs.length} {songCountText}
             </p>
           </div>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Fermer"
+            aria-label={t('close')}
           >
             <X className="w-4 h-4 text-gray-500" />
           </button>
@@ -75,7 +87,7 @@ export default function CountrySidebar({
                 </p>
                 {song.metadata?.genres && song.metadata.genres.length > 0 && (
                   <p className="text-sm text-gray-500 truncate">
-                    {song.metadata.genres.join(', ')}
+                    {song.metadata.genres.map(g => translateLookup(g, 'genres', language)).join(', ')}
                   </p>
                 )}
               </div>
@@ -102,15 +114,15 @@ export default function CountrySidebar({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
           <div>
-            <h3 className="font-semibold text-gray-800">{country}</h3>
+            <h3 className="font-semibold text-gray-800">{displayCountry}</h3>
             <p className="text-sm text-gray-500">
-              {songs.length} chanson{songs.length > 1 ? 's' : ''}
+              {songs.length} {songCountText}
             </p>
           </div>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Fermer"
+            aria-label={t('close')}
           >
             <X className="w-4 h-4 text-gray-500" />
           </button>
@@ -147,7 +159,7 @@ export default function CountrySidebar({
                 </p>
                 {song.metadata?.genres && song.metadata.genres.length > 0 && (
                   <p className="text-sm text-gray-500 truncate">
-                    {song.metadata.genres.join(', ')}
+                    {song.metadata.genres.map(g => translateLookup(g, 'genres', language)).join(', ')}
                   </p>
                 )}
               </div>

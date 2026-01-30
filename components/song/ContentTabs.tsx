@@ -1,17 +1,19 @@
 import { useSongStore } from '@/store/songStore';
 import { ContentTab } from '@/types/song';
 import { Check } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { TranslationKey } from '@/data/translations';
 
 interface TabConfig {
   id: ContentTab;
-  label: string;
+  labelKey: TranslationKey;
 }
 
-const allTabs: TabConfig[] = [
-  { id: 'paroles', label: 'Paroles' },
-  { id: 'partitions', label: 'Partitions' },
-  { id: 'traductions', label: 'Traductions' },
-  { id: 'histoire', label: 'Histoire' },
+const tabConfigs: TabConfig[] = [
+  { id: 'paroles', labelKey: 'lyrics' },
+  { id: 'partitions', labelKey: 'sheets' },
+  { id: 'traductions', labelKey: 'translations' },
+  { id: 'histoire', labelKey: 'history' },
 ];
 
 interface ContentTabsProps {
@@ -19,9 +21,10 @@ interface ContentTabsProps {
 }
 
 export default function ContentTabs({ availableTabs }: ContentTabsProps) {
+  const { t } = useLanguage();
   const { selectedTabs, toggleTab } = useSongStore();
 
-  const tabs = allTabs.filter((tab) => availableTabs.includes(tab.id));
+  const tabs = tabConfigs.filter((tab) => availableTabs.includes(tab.id));
 
   if (tabs.length === 0) return null;
 
@@ -48,7 +51,7 @@ export default function ContentTabs({ availableTabs }: ContentTabsProps) {
             >
               {isSelected && <Check className="w-3 h-3 text-[#3D5A73]" />}
             </div>
-            <span className="mt-0.5">{tab.label}</span>
+            <span className="mt-0.5">{t(tab.labelKey)}</span>
           </button>
         );
       })}

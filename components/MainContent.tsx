@@ -4,8 +4,10 @@ import Link from "next/link"
 import { Search, Globe } from "lucide-react"
 import { MapModal } from "./MapModal"
 import { useSongsDataStore } from "@/store/useSongsDataStore"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function MainContent() {
+  const { t } = useLanguage()
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearchFocused, setIsSearchFocused] = useState(false)
@@ -52,7 +54,7 @@ export default function MainContent() {
       {/* Header with Bienvenue and Admin */}
       <div className="flex justify-between items-start px-8 pt-6">
         <h1 className="font-urbanist text-6xl md:text-7xl lg:text-8xl font-bold text-blue-300 tracking-tight md:ml-8">
-          Bienvenue
+          {t('welcome')}
         </h1>
         <Link
           href="/admin"
@@ -113,7 +115,7 @@ export default function MainContent() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
-                    placeholder="Rechercher une chanson"
+                    placeholder={t('searchSong')}
                     className="bg-transparent text-white placeholder-white/80 font-medium outline-none w-48 pt-1"
                   />
                   <Search className="w-5 h-5 flex-shrink-0 text-white" />
@@ -122,7 +124,7 @@ export default function MainContent() {
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
                     {filteredSongs.length === 0 ? (
                       <div className="px-4 py-3 text-gray-500 text-sm">
-                        Aucune chanson trouvée
+                        {t('noSongsFound')}
                       </div>
                     ) : (
                       filteredSongs.map((song) => (
@@ -159,7 +161,7 @@ export default function MainContent() {
               >
                 <Globe className="w-5 h-5 text-gray-500 flex-shrink-0" />
                 <span className="translate-y-px mt-0.5">
-                  Voir la carte des chansons
+                  {t('viewSongMap')}
                 </span>
               </button>
             </div>
@@ -167,7 +169,7 @@ export default function MainContent() {
             {/* Sponsors Section */}
             <section className="w-full mt-8">
               <h2 className="text-xl font-semibold text-center text-gray-800 mb-6">
-                Ils nous soutiennent
+                {t('ourSupporters')}
               </h2>
               <div className="flex justify-center">
                 <Image

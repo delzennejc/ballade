@@ -4,7 +4,7 @@ export const Audiences: CollectionConfig = {
   slug: 'audiences',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name'],
+    defaultColumns: ['name', 'nameEn'],
   },
   fields: [
     {
@@ -12,6 +12,14 @@ export const Audiences: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+    },
+    {
+      name: 'nameEn',
+      type: 'text',
+      required: false,
+      admin: {
+        description: 'English translation of the audience name',
+      },
     },
   ],
 }

@@ -9,6 +9,7 @@ type LookupType = (typeof VALID_LOOKUP_TYPES)[number]
 interface LookupItem {
   id: string
   name: string
+  nameEn?: string
 }
 
 interface LanguageLookupItem extends LookupItem {
@@ -57,6 +58,7 @@ export default async function handler(
       const item: LookupItem = {
         id: String(doc.id),
         name: (doc.name as string) || '',
+        nameEn: (doc.nameEn as string) || undefined,
       }
 
       // Add code field for languages

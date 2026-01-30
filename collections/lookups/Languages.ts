@@ -4,7 +4,7 @@ export const Languages: CollectionConfig = {
   slug: 'languages',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'code'],
+    defaultColumns: ['name', 'nameEn', 'code'],
   },
   fields: [
     {
@@ -12,6 +12,14 @@ export const Languages: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+    },
+    {
+      name: 'nameEn',
+      type: 'text',
+      required: false,
+      admin: {
+        description: 'English name (e.g., "French" for "Français")',
+      },
     },
     {
       name: 'code',

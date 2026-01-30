@@ -4,7 +4,7 @@ export const TrackTypes: CollectionConfig = {
   slug: 'track-types',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'slug'],
+    defaultColumns: ['name', 'nameEn', 'slug'],
   },
   fields: [
     {
@@ -13,7 +13,15 @@ export const TrackTypes: CollectionConfig = {
       required: true,
       unique: true,
       admin: {
-        description: 'Display name (e.g., "Groupe", "Violon")',
+        description: 'Display name in French (e.g., "Groupe", "Violon")',
+      },
+    },
+    {
+      name: 'nameEn',
+      type: 'text',
+      required: false,
+      admin: {
+        description: 'Display name in English (e.g., "Full Band", "Violin")',
       },
     },
     {

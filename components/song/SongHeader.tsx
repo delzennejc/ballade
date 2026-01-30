@@ -8,6 +8,10 @@ import {
   Sparkles,
 } from "lucide-react"
 import { Song } from "@/types/song"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { useLookupStore } from "@/store/useLookupStore"
+import { translateCountry } from "@/data/geography"
+import { translateDifficulty } from "@/data/translations"
 
 interface SongHeaderProps {
   song: Song
@@ -33,7 +37,27 @@ function TagGroup({ icon, items, colorClass }: TagGroupProps) {
 }
 
 export default function SongHeader({ song }: SongHeaderProps) {
+  const { language } = useLanguage()
+  const { translateLookup } = useLookupStore()
   const { metadata } = song
+
+  // Translate metadata based on current language
+  const translatedCountries = metadata.countries.map((c) =>
+    language === 'en' ? translateCountry(c, 'fr', 'en') : c
+  )
+  const translatedLanguages = metadata.languages.map((l) =>
+    translateLookup(l, 'languages', language)
+  )
+  const translatedGenres = metadata.genres.map((g) =>
+    translateLookup(g, 'genres', language)
+  )
+  const translatedAudience = metadata.audience.map((a) =>
+    translateLookup(a, 'audiences', language)
+  )
+  const translatedThemes = metadata.themes.map((t) =>
+    translateLookup(t, 'themes', language)
+  )
+  const translatedDifficulty = translateDifficulty(metadata.difficulty, language)
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 mb-6">
@@ -58,22 +82,22 @@ export default function SongHeader({ song }: SongHeaderProps) {
           <div className="flex flex-wrap gap-3 mb-3">
             <TagGroup
               icon={<Globe className="w-5 h-5" />}
-              items={metadata.countries}
+              items={translatedCountries}
               colorClass="bg-blue-50 text-blue-700"
             />
             <TagGroup
               icon={<MessageCircle className="w-5 h-5" />}
-              items={metadata.languages}
+              items={translatedLanguages}
               colorClass="bg-green-50 text-green-700"
             />
             <TagGroup
               icon={<Music className="w-5 h-5" />}
-              items={metadata.genres}
+              items={translatedGenres}
               colorClass="bg-purple-50 text-purple-700"
             />
             <TagGroup
               icon={<Users className="w-5 h-5" />}
-              items={metadata.audience}
+              items={translatedAudience}
               colorClass="bg-orange-50 text-orange-700"
             />
           </div>
@@ -82,12 +106,12 @@ export default function SongHeader({ song }: SongHeaderProps) {
           <div className="flex flex-wrap gap-3">
             <TagGroup
               icon={<Mountain className="w-5 h-5" />}
-              items={[metadata.difficulty]}
+              items={[translatedDifficulty]}
               colorClass="bg-amber-50 text-amber-700"
             />
             <TagGroup
               icon={<Sparkles className="w-5 h-5" />}
-              items={metadata.themes}
+              items={translatedThemes}
               colorClass="bg-rose-50 text-rose-700"
             />
           </div>

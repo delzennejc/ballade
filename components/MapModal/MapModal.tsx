@@ -4,15 +4,21 @@ import dynamic from "next/dynamic"
 import { Song } from "@/types/song"
 import { getCountryCoordinates } from "@/data/countryCoordinates"
 import CountrySidebar from "./CountrySidebar"
+import { useLanguage } from "@/contexts/LanguageContext"
+
+// Loading component for MapView (moved outside to avoid hooks in dynamic import)
+function MapLoading() {
+  return (
+    <div className="flex-1 bg-gray-100 animate-pulse flex items-center justify-center">
+      <span className="text-gray-500">Loading map...</span>
+    </div>
+  )
+}
 
 // Dynamically import MapView to avoid SSR issues with Leaflet
 const MapView = dynamic(() => import("./MapView"), {
   ssr: false,
-  loading: () => (
-    <div className="flex-1 bg-gray-100 animate-pulse flex items-center justify-center">
-      <span className="text-gray-500">Chargement de la carte...</span>
-    </div>
-  ),
+  loading: () => <MapLoading />,
 })
 
 export interface CountryMarkerData {
@@ -41,6 +47,7 @@ function aggregateSongsByCountry(songs: Song[]): Map<string, Song[]> {
 }
 
 export default function MapModal({ isOpen, onClose, songs }: MapModalProps) {
+  const { t } = useLanguage()
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
@@ -119,12 +126,12 @@ export default function MapModal({ isOpen, onClose, songs }: MapModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-2 border-b border-gray-100">
           <h2 className="text-xl font-semibold text-gray-800">
-            Carte des chansons
+            {t('songMap')}
           </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Fermer"
+            aria-label={t('close')}
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>

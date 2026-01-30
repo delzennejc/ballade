@@ -1,4 +1,8 @@
+import { useLanguage } from "@/contexts/LanguageContext"
+
 export default function Footer() {
+  const { t } = useLanguage()
+
   return (
     <footer className="w-full bg-slate-700 text-white py-4 px-8">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -59,7 +63,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <p className="text-sm text-gray-300">
-          2025 Association Ballade. Tous droits réservés.
+          2025 Association Ballade. {t('allRightsReserved')}.
         </p>
 
         {/* Legal Link */}
@@ -67,7 +71,7 @@ export default function Footer() {
           href="/mentions-legales"
           className="text-sm text-gray-300 hover:text-white transition-colors"
         >
-          Mentions légales
+          {t('legalNotice')}
         </a>
       </div>
     </footer>

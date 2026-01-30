@@ -4,7 +4,7 @@ export const Genres: CollectionConfig = {
   slug: 'genres',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name'],
+    defaultColumns: ['name', 'nameEn'],
   },
   fields: [
     {
@@ -12,6 +12,14 @@ export const Genres: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+    },
+    {
+      name: 'nameEn',
+      type: 'text',
+      required: false,
+      admin: {
+        description: 'English translation of the genre name',
+      },
     },
   ],
 }

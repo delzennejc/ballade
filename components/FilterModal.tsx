@@ -10,8 +10,11 @@ import {
   Users,
   Layers,
 } from "lucide-react"
-import { getRegionByCountry } from "@/data/geography"
+import { getRegionByCountry, translateRegion } from "@/data/geography"
 import { Song } from "@/types/song"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { useLookupStore } from "@/store/useLookupStore"
+import { translateDifficulty } from "@/data/translations"
 
 export interface FilterState {
   geographicOrigin: string[] // Stores region names
@@ -98,6 +101,7 @@ interface FilterSectionProps {
   colorClass: string
   selectedBadgeClass: string
   countBadgeClass: string
+  translateOption?: (option: string) => string
 }
 
 function FilterSection({
@@ -112,6 +116,7 @@ function FilterSection({
   colorClass,
   selectedBadgeClass,
   countBadgeClass,
+  translateOption,
 }: FilterSectionProps) {
   const selectedCount = selectedOptions.length
 
@@ -143,6 +148,7 @@ function FilterSection({
         <div className="flex flex-wrap gap-2 pb-4 px-1">
           {options.map((option) => {
             const isSelected = selectedOptions.includes(option)
+            const displayText = translateOption ? translateOption(option) : option
             return (
               <button
                 key={option}
@@ -153,7 +159,7 @@ function FilterSection({
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {option}
+                {displayText}
               </button>
             )
           })}
@@ -178,6 +184,8 @@ export default function FilterModal({
   initialFilters = emptyFilters,
   songs = [],
 }: FilterModalProps) {
+  const { language, t } = useLanguage()
+  const { translateLookup } = useLookupStore()
   const [filters, setFilters] = useState<FilterState>(initialFilters)
   const [expandedSections, setExpandedSections] = useState<Set<FilterCategory>>(
     new Set(["geographicOrigin"]),
@@ -186,6 +194,28 @@ export default function FilterModal({
 
   // Compute available filter options based on songs
   const availableOptions = useMemo(() => computeAvailableOptions(songs), [songs])
+
+  // Helper to translate filter option based on category
+  const translateOption = (option: string, category: FilterCategory): string => {
+    if (language === 'fr') return option
+
+    switch (category) {
+      case 'geographicOrigin':
+        return translateRegion(option, 'fr', 'en')
+      case 'musicalStyle':
+        return translateLookup(option, 'genres', language)
+      case 'language':
+        return translateLookup(option, 'languages', language)
+      case 'theme':
+        return translateLookup(option, 'themes', language)
+      case 'targetAudience':
+        return translateLookup(option, 'audiences', language)
+      case 'difficultyLevel':
+        return translateDifficulty(option, language)
+      default:
+        return option
+    }
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -257,7 +287,7 @@ export default function FilterModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Filtres</h2>
+          <h2 className="text-xl font-semibold text-gray-800">{t('filterTitle')}</h2>
           <button
             onClick={() => onClose(filters)}
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -271,7 +301,7 @@ export default function FilterModal({
           {availableOptions.geographicOrigin.length > 0 && (
             <FilterSection
               icon={<Globe className="w-5 h-5" />}
-              title="Origine géographique"
+              title={t('geographicOrigin')}
               category="geographicOrigin"
               options={availableOptions.geographicOrigin}
               selectedOptions={filters.geographicOrigin}
@@ -281,12 +311,13 @@ export default function FilterModal({
               colorClass="text-blue-700"
               selectedBadgeClass="border-2 border-blue-700 text-blue-700 bg-blue-50"
               countBadgeClass="text-blue-700 bg-blue-100"
+              translateOption={(opt) => translateOption(opt, 'geographicOrigin')}
             />
           )}
           {availableOptions.musicalStyle.length > 0 && (
             <FilterSection
               icon={<Music className="w-5 h-5" />}
-              title="Style musical"
+              title={t('musicalStyle')}
               category="musicalStyle"
               options={availableOptions.musicalStyle}
               selectedOptions={filters.musicalStyle}
@@ -296,12 +327,13 @@ export default function FilterModal({
               colorClass="text-purple-700"
               selectedBadgeClass="border-2 border-purple-700 text-purple-700 bg-purple-50"
               countBadgeClass="text-purple-700 bg-purple-100"
+              translateOption={(opt) => translateOption(opt, 'musicalStyle')}
             />
           )}
           {availableOptions.language.length > 0 && (
             <FilterSection
               icon={<MessageCircle className="w-5 h-5" />}
-              title="Langue d'origine"
+              title={t('originalLanguage')}
               category="language"
               options={availableOptions.language}
               selectedOptions={filters.language}
@@ -311,12 +343,13 @@ export default function FilterModal({
               colorClass="text-green-700"
               selectedBadgeClass="border-2 border-green-700 text-green-700 bg-green-50"
               countBadgeClass="text-green-700 bg-green-100"
+              translateOption={(opt) => translateOption(opt, 'language')}
             />
           )}
           {availableOptions.theme.length > 0 && (
             <FilterSection
               icon={<Sparkles className="w-5 h-5" />}
-              title="Thème"
+              title={t('theme')}
               category="theme"
               options={availableOptions.theme}
               selectedOptions={filters.theme}
@@ -326,12 +359,13 @@ export default function FilterModal({
               colorClass="text-rose-700"
               selectedBadgeClass="border-2 border-rose-700 text-rose-700 bg-rose-50"
               countBadgeClass="text-rose-700 bg-rose-100"
+              translateOption={(opt) => translateOption(opt, 'theme')}
             />
           )}
           {availableOptions.targetAudience.length > 0 && (
             <FilterSection
               icon={<Users className="w-5 h-5" />}
-              title="Bénéficiaires / Public cible"
+              title={t('targetAudience')}
               category="targetAudience"
               options={availableOptions.targetAudience}
               selectedOptions={filters.targetAudience}
@@ -341,12 +375,13 @@ export default function FilterModal({
               colorClass="text-orange-700"
               selectedBadgeClass="border-2 border-orange-700 text-orange-700 bg-orange-50"
               countBadgeClass="text-orange-700 bg-orange-100"
+              translateOption={(opt) => translateOption(opt, 'targetAudience')}
             />
           )}
           {availableOptions.difficultyLevel.length > 0 && (
             <FilterSection
               icon={<Layers className="w-5 h-5" />}
-              title="Niveau de difficulté"
+              title={t('difficultyLevel')}
               category="difficultyLevel"
               options={availableOptions.difficultyLevel}
               selectedOptions={filters.difficultyLevel}
@@ -356,6 +391,7 @@ export default function FilterModal({
               colorClass="text-amber-700"
               selectedBadgeClass="border-2 border-amber-700 text-amber-700 bg-amber-50"
               countBadgeClass="text-amber-700 bg-amber-100"
+              translateOption={(opt) => translateOption(opt, 'difficultyLevel')}
             />
           )}
         </div>
@@ -366,13 +402,13 @@ export default function FilterModal({
             onClick={clearAllFilters}
             className="flex-1 flex items-center justify-center px-6 py-1 bg-gray-100 rounded-xl text-gray-500 font-medium hover:bg-gray-200 transition-colors whitespace-nowrap"
           >
-            <span className="pt-0.5">Supprimer tous les filtres</span>
+            <span className="pt-0.5">{t('clearAllFilters')}</span>
           </button>
           <button
             onClick={handleValidate}
             className="flex-1 flex items-center justify-center px-6 py-1 bg-blue-500 rounded-xl text-white font-medium hover:bg-blue-600 transition-colors whitespace-nowrap"
           >
-            <span className="pt-0.5">Valider les filtres</span>
+            <span className="pt-0.5">{t('validateFilters')}</span>
           </button>
         </div>
       </div>

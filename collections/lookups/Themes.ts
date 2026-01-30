@@ -4,7 +4,7 @@ export const Themes: CollectionConfig = {
   slug: 'themes',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name'],
+    defaultColumns: ['name', 'nameEn'],
   },
   fields: [
     {
@@ -12,6 +12,14 @@ export const Themes: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+    },
+    {
+      name: 'nameEn',
+      type: 'text',
+      required: false,
+      admin: {
+        description: 'English translation of the theme name',
+      },
     },
   ],
 }
