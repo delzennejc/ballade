@@ -5,11 +5,11 @@ import Dropdown, { DropdownOption } from '@/components/ui/Dropdown';
 import { LyricsVersion } from '@/types/song';
 import { useSongStore } from '@/store/songStore';
 
-interface ParolesSectionProps {
+interface LyricsSectionProps {
   lyrics: LyricsVersion[];
 }
 
-export default function ParolesSection({ lyrics }: ParolesSectionProps) {
+export default function LyricsSection({ lyrics }: LyricsSectionProps) {
   const { lyricsLanguage, setLyricsLanguage } = useSongStore();
 
   // Use store value if available in lyrics, otherwise fallback to first available

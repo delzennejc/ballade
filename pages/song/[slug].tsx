@@ -5,8 +5,8 @@ import Footer from '@/components/Footer';
 import SongHeader from '@/components/song/SongHeader';
 import AudioPlayer from '@/components/song/AudioPlayer';
 import ContentTabs from '@/components/song/ContentTabs';
-import ParolesSection from '@/components/song/ParolesSection';
-import TraductionsSection from '@/components/song/TraductionsSection';
+import LyricsSection from '@/components/song/LyricsSection';
+import TranslationsSection from '@/components/song/TranslationsSection';
 import { useSongStore } from '@/store/songStore';
 import { useSongsDataStore } from '@/store/useSongsDataStore';
 import { ContentTab, Song } from '@/types/song';
@@ -45,8 +45,8 @@ const ScoresSection = dynamic(
   { ssr: false }
 );
 
-const HistoireSection = dynamic(
-  () => import('@/components/song/HistoireSection'),
+const HistorySection = dynamic(
+  () => import('@/components/song/HistorySection'),
   { ssr: false }
 );
 
@@ -171,13 +171,13 @@ export default function SongPage() {
               {selectedTabs.filter((tab) => availableTabs.includes(tab)).map((tab) => {
                 switch (tab) {
                   case 'paroles':
-                    return <ParolesSection key={tab} lyrics={song.lyrics} />;
+                    return <LyricsSection key={tab} lyrics={song.lyrics} />;
                   case 'scores':
                     return <ScoresSection key={tab} scores={song.scores} />;
                   case 'traductions':
-                    return <TraductionsSection key={tab} lyrics={song.lyrics} />;
+                    return <TranslationsSection key={tab} lyrics={song.lyrics} />;
                   case 'histoire':
-                    return <HistoireSection key={tab} history={song.history} />;
+                    return <HistorySection key={tab} history={song.history} />;
                   default:
                     return null;
                 }

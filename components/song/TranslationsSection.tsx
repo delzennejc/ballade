@@ -5,13 +5,13 @@ import Dropdown, { DropdownOption } from '@/components/ui/Dropdown';
 import { LyricsVersion } from '@/types/song';
 import { useSongStore } from '@/store/songStore';
 
-interface TraductionsSectionProps {
+interface TranslationsSectionProps {
   lyrics: LyricsVersion[];
 }
 
-export default function TraductionsSection({
+export default function TranslationsSection({
   lyrics,
-}: TraductionsSectionProps) {
+}: TranslationsSectionProps) {
   const { lyricsLanguage, translationLanguage, setTranslationLanguage } =
     useSongStore();
 

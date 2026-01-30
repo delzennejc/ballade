@@ -13,7 +13,7 @@ import 'react-pdf/dist/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-interface HistoireSectionProps {
+interface HistorySectionProps {
   history: HistoryVersion[];
 }
 
@@ -30,7 +30,7 @@ function getProxiedUrl(url: string): string {
   return url;
 }
 
-export default function HistoireSection({ history }: HistoireSectionProps) {
+export default function HistorySection({ history }: HistorySectionProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(DEFAULT_SCALE);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
