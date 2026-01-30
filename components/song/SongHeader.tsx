@@ -12,9 +12,11 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useLookupStore } from "@/store/useLookupStore"
 import { translateCountry } from "@/data/geography"
 import { translateDifficulty } from "@/data/translations"
+import ActionMenu from "@/components/ui/ActionMenu"
 
 interface SongHeaderProps {
   song: Song
+  onShare: () => void
 }
 
 interface TagGroupProps {
@@ -36,7 +38,7 @@ function TagGroup({ icon, items, colorClass }: TagGroupProps) {
   )
 }
 
-export default function SongHeader({ song }: SongHeaderProps) {
+export default function SongHeader({ song, onShare }: SongHeaderProps) {
   const { language } = useLanguage()
   const { translateLookup } = useLookupStore()
   const { metadata } = song
@@ -74,9 +76,12 @@ export default function SongHeader({ song }: SongHeaderProps) {
 
         {/* Title and metadata */}
         <div className="flex-1 min-w-0">
-          <h1 className="text-4xl font-bold text-[#18375E] mb-5">
-            {song.title}
-          </h1>
+          <div className="flex items-start justify-between gap-4 mb-5">
+            <h1 className="text-4xl font-bold text-[#18375E]">
+              {song.title}
+            </h1>
+            <ActionMenu onShare={onShare} />
+          </div>
 
           {/* Tags - Row 1 */}
           <div className="flex flex-wrap gap-3 mb-3">

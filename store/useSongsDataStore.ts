@@ -61,14 +61,36 @@ export const useSongsDataStore = create<SongsDataState>((set, get) => ({
     }
   },
 
-  // Set current song by slug from cached songs list
+  // Set current song by slug - check cache first, then fetch from API
   fetchSongBySlug: async (slug: string) => {
     const { songs } = get();
-    const song = songs.find(s => s.slug === slug);
-    if (song) {
-      set({ currentSong: song, error: null });
-    } else {
-      set({ currentSong: null, error: null });
+
+    // Check if song is already in cache
+    const cachedSong = songs.find(s => s.slug === slug);
+    if (cachedSong) {
+      set({ currentSong: cachedSong, error: null });
+      return;
+    }
+
+    // If not in cache, fetch from API
+    set({ isLoading: true, error: null });
+    try {
+      const response = await fetch(`/api/public/songs/${slug}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          set({ currentSong: null, isLoading: false, error: null });
+          return;
+        }
+        throw new Error(`Failed to fetch song: ${response.statusText}`);
+      }
+      const song: Song = await response.json();
+      set({ currentSong: song, isLoading: false, error: null });
+    } catch (error) {
+      set({
+        currentSong: null,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch song'
+      });
     }
   },
 

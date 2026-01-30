@@ -9,12 +9,14 @@ import { useAudioPlayer } from "@/hooks/useAudioPlayer"
 import { AudioTrackData } from "@/types/song"
 import { useSongStore } from "@/store/songStore"
 import Dropdown, { DropdownOption } from "@/components/ui/Dropdown"
+import ActionMenu from "@/components/ui/ActionMenu"
 
 interface AudioPlayerProps {
   audioTracks: AudioTrackData[]
+  onShare: () => void
 }
 
-export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
+export default function AudioPlayer({ audioTracks, onShare }: AudioPlayerProps) {
   const {
     isPlaying,
     volume,
@@ -160,6 +162,9 @@ export default function AudioPlayer({ audioTracks }: AudioPlayerProps) {
           onSelect={handleSelectAudio}
           displayValue={getDisplayName()}
         />
+
+        {/* Share Menu */}
+        <ActionMenu onShare={onShare} />
       </div>
     </div>
   )

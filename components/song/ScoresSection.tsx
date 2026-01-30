@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { MoreVertical, ZoomIn, ZoomOut } from 'lucide-react';
+import { ZoomIn, ZoomOut } from 'lucide-react';
 import ContentSection from './ContentSection';
+import ActionMenu from '@/components/ui/ActionMenu';
 import { ScoreVersion } from '@/types/song';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -13,6 +14,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 interface ScoresSectionProps {
   scores: ScoreVersion[];
+  onShare: () => void;
 }
 
 const DEFAULT_SCALE = 1;
@@ -30,6 +32,7 @@ function getProxiedUrl(url: string): string {
 
 export default function ScoresSection({
   scores,
+  onShare,
 }: ScoresSectionProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(DEFAULT_SCALE);
@@ -104,9 +107,7 @@ export default function ScoresSection({
       >
         <ZoomIn className="w-5 h-5" />
       </button>
-      <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-        <MoreVertical className="w-5 h-5" />
-      </button>
+      <ActionMenu onShare={onShare} />
     </div>
   );
 

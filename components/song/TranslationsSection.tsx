@@ -1,16 +1,18 @@
 import { useEffect } from 'react';
-import { MoreVertical } from 'lucide-react';
 import ContentSection from './ContentSection';
 import Dropdown, { DropdownOption } from '@/components/ui/Dropdown';
+import ActionMenu from '@/components/ui/ActionMenu';
 import { LyricsVersion } from '@/types/song';
 import { useSongStore } from '@/store/songStore';
 
 interface TranslationsSectionProps {
   lyrics: LyricsVersion[];
+  onShare: () => void;
 }
 
 export default function TranslationsSection({
   lyrics,
+  onShare,
 }: TranslationsSectionProps) {
   const { lyricsLanguage, translationLanguage, setTranslationLanguage } =
     useSongStore();
@@ -51,11 +53,7 @@ export default function TranslationsSection({
       <ContentSection
         title="Traductions"
         headerImage="/traduction-header.svg"
-        headerActions={
-          <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-            <MoreVertical className="w-5 h-5" />
-          </button>
-        }
+        headerActions={<ActionMenu onShare={onShare} />}
       >
         <div className="text-slate-500 italic">
           Aucune traduction disponible pour cette version des paroles
@@ -74,9 +72,7 @@ export default function TranslationsSection({
           align="right"
         />
       )}
-      <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-        <MoreVertical className="w-5 h-5" />
-      </button>
+      <ActionMenu onShare={onShare} />
     </>
   );
 

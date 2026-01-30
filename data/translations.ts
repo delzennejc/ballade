@@ -34,6 +34,14 @@ export type TranslationKey =
   | 'sheets'
   | 'translations'
   | 'history'
+  // Share Modal
+  | 'share'
+  | 'linkToShare'
+  | 'copyLink'
+  | 'linkCopied'
+  // Song Page
+  | 'songNotFound'
+  | 'songNotFoundDescription'
   // Footer
   | 'allRightsReserved'
   | 'legalNotice'
@@ -84,6 +92,16 @@ export const translations: Record<AppLanguage, Translations> = {
     translations: 'Traductions',
     history: 'Histoire',
 
+    // Share Modal
+    share: 'Partager',
+    linkToShare: 'Lien à partager :',
+    copyLink: 'Copier le lien',
+    linkCopied: 'Lien copié !',
+
+    // Song Page
+    songNotFound: 'Chanson non trouvée',
+    songNotFoundDescription: "La chanson que vous recherchez n'existe pas.",
+
     // Footer
     allRightsReserved: 'Tous droits réservés',
     legalNotice: 'Mentions légales',
@@ -131,6 +149,16 @@ export const translations: Record<AppLanguage, Translations> = {
     sheets: 'Scores',
     translations: 'Translations',
     history: 'History',
+
+    // Share Modal
+    share: 'Share',
+    linkToShare: 'Link to share:',
+    copyLink: 'Copy link',
+    linkCopied: 'Link copied!',
+
+    // Song Page
+    songNotFound: 'Song not found',
+    songNotFoundDescription: 'The song you are looking for does not exist.',
 
     // Footer
     allRightsReserved: 'All rights reserved',

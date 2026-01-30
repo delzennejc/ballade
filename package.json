@@ -30,6 +30,7 @@
     "papaparse": "^5.5.3",
     "payload": "^3.73.0",
     "pdf-parse": "^1.1.1",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-leaflet": "^5.0.0",

@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { MoreVertical, ZoomIn, ZoomOut } from 'lucide-react';
+import { ZoomIn, ZoomOut } from 'lucide-react';
 import ContentSection from './ContentSection';
 import Dropdown, { DropdownOption } from '@/components/ui/Dropdown';
+import ActionMenu from '@/components/ui/ActionMenu';
 import { HistoryVersion } from '@/types/song';
 import { useSongStore } from '@/store/songStore';
 
@@ -15,6 +16,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 interface HistorySectionProps {
   history: HistoryVersion[];
+  onShare: () => void;
 }
 
 const DEFAULT_SCALE = 1;
@@ -30,7 +32,7 @@ function getProxiedUrl(url: string): string {
   return url;
 }
 
-export default function HistorySection({ history }: HistorySectionProps) {
+export default function HistorySection({ history, onShare }: HistorySectionProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(DEFAULT_SCALE);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
@@ -139,9 +141,7 @@ export default function HistorySection({ history }: HistorySectionProps) {
           align="right"
         />
       )}
-      <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-        <MoreVertical className="w-5 h-5" />
-      </button>
+      <ActionMenu onShare={onShare} />
     </div>
   );
 
