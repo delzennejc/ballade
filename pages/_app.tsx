@@ -7,6 +7,7 @@ import { useLookupStore } from "@/store/useLookupStore";
 import { useFocusedViewStore } from "@/store/useFocusedViewStore";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Sidebar from "@/components/Sidebar";
+import CookieConsent from "@/components/CookieConsent";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { songs, fetchSongs } = useSongsDataStore();
@@ -29,6 +30,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </div>
       </div>
+      <CookieConsent />
     </LanguageProvider>
   );
 }
