@@ -1,5 +1,7 @@
 export type ContentTab = 'paroles' | 'scores' | 'traductions' | 'histoire';
 
+export type FocusedViewType = ContentTab | 'audio';
+
 export type AudioTrack = string;
 
 export interface LyricsVersion {

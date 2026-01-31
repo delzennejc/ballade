@@ -34,11 +34,14 @@ export type TranslationKey =
   | 'sheets'
   | 'translations'
   | 'history'
+  | 'audio'
   // Share Modal
   | 'share'
   | 'linkToShare'
   | 'copyLink'
   | 'linkCopied'
+  // Focused View
+  | 'backToFullView'
   // Song Page
   | 'songNotFound'
   | 'songNotFoundDescription'
@@ -91,12 +94,16 @@ export const translations: Record<AppLanguage, Translations> = {
     sheets: 'Partitions',
     translations: 'Traductions',
     history: 'Histoire',
+    audio: 'Audio',
 
     // Share Modal
     share: 'Partager',
     linkToShare: 'Lien à partager :',
     copyLink: 'Copier le lien',
     linkCopied: 'Lien copié !',
+
+    // Focused View
+    backToFullView: 'Retour à la vue complète',
 
     // Song Page
     songNotFound: 'Chanson non trouvée',
@@ -149,12 +156,16 @@ export const translations: Record<AppLanguage, Translations> = {
     sheets: 'Scores',
     translations: 'Translations',
     history: 'History',
+    audio: 'Audio',
 
     // Share Modal
     share: 'Share',
     linkToShare: 'Link to share:',
     copyLink: 'Copy link',
     linkCopied: 'Link copied!',
+
+    // Focused View
+    backToFullView: 'Back to full view',
 
     // Song Page
     songNotFound: 'Song not found',

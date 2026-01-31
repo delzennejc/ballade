@@ -8,10 +8,18 @@ import ContentTabs from '@/components/song/ContentTabs';
 import LyricsSection from '@/components/song/LyricsSection';
 import TranslationsSection from '@/components/song/TranslationsSection';
 import ShareModal from '@/components/song/ShareModal';
+import BackToFullViewButton from '@/components/song/BackToFullViewButton';
 import { useSongStore } from '@/store/songStore';
 import { useSongsDataStore } from '@/store/useSongsDataStore';
+import { useFocusedViewStore } from '@/store/useFocusedViewStore';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ContentTab, Song } from '@/types/song';
+import { ContentTab, FocusedViewType, Song } from '@/types/song';
+
+const VALID_VIEWS: FocusedViewType[] = ['paroles', 'scores', 'traductions', 'histoire', 'audio'];
+
+function isValidView(view: string | undefined): view is FocusedViewType {
+  return view !== undefined && VALID_VIEWS.includes(view as FocusedViewType);
+}
 
 function getAvailableTabs(song: Song | null): ContentTab[] {
   if (!song) return [];
@@ -54,18 +62,28 @@ const HistorySection = dynamic(
 
 export default function SongPage() {
   const router = useRouter();
-  const { slug } = router.query;
+  const { slug, view } = router.query;
   const { t } = useLanguage();
   const { selectedTabs, resetState, setSelectedTabs, setSelectedAudio, selectedVersionId } = useSongStore();
   const { currentSong: song, isLoading, error, fetchSongBySlug, clearCurrentSong } = useSongsDataStore();
+  const { focusedView, setFocusedView, clearFocusedView } = useFocusedViewStore();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareContentType, setShareContentType] = useState<FocusedViewType | null>(null);
 
-  // Generate the share URL for this song
-  const shareUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/song/${slug}`
-    : '';
+  // Generate share URL with optional content type
+  const generateShareUrl = (contentType?: FocusedViewType | null) => {
+    if (typeof window === 'undefined') return '';
+    const baseUrl = `${window.location.origin}/song/${slug}`;
+    if (contentType) {
+      return `${baseUrl}?view=${contentType}`;
+    }
+    return baseUrl;
+  };
 
-  const handleShare = () => setIsShareModalOpen(true);
+  const handleShare = (contentType?: FocusedViewType) => {
+    setShareContentType(contentType || null);
+    setIsShareModalOpen(true);
+  };
 
   // Calculate available tabs based on song content
   const availableTabs = useMemo(() => getAvailableTabs(song), [song]);
@@ -101,6 +119,44 @@ export default function SongPage() {
       clearCurrentSong();
     };
   }, [slug, resetState, clearCurrentSong]);
+
+  // Parse and validate view parameter for focused view mode
+  useEffect(() => {
+    const viewParam = Array.isArray(view) ? view[0] : view;
+
+    if (isValidView(viewParam)) {
+      // Check if the content exists for this song before setting focused view
+      if (song) {
+        const contentExists: Record<FocusedViewType, boolean> = {
+          paroles: song.lyrics?.some((l) => l.text?.trim()) || false,
+          scores: song.scores?.some((s) => s.pdf?.trim()) || false,
+          traductions: song.lyrics?.some((l) => l.translations?.some((t) => t.text?.trim())) || false,
+          histoire: song.history?.some((h) => h.pdf?.trim()) || false,
+          audio: (song.audioTracks?.length || 0) > 0,
+        };
+
+        if (contentExists[viewParam]) {
+          setFocusedView(viewParam);
+        } else {
+          // Content doesn't exist - redirect to full view
+          router.replace(`/song/${slug}`, undefined, { shallow: true });
+        }
+      }
+    } else if (viewParam) {
+      // Invalid view param - redirect to full view
+      router.replace(`/song/${slug}`, undefined, { shallow: true });
+    } else {
+      // No view param - clear focused view
+      clearFocusedView();
+    }
+  }, [view, song, slug, router, setFocusedView, clearFocusedView]);
+
+  // Clear focused view on unmount
+  useEffect(() => {
+    return () => {
+      clearFocusedView();
+    };
+  }, [clearFocusedView]);
 
   // Loading state
   if (isLoading) {
@@ -155,6 +211,59 @@ export default function SongPage() {
     );
   }
 
+  // Render focused view content section
+  const renderFocusedContent = () => {
+    if (!focusedView || !song) return null;
+
+    switch (focusedView) {
+      case 'audio':
+        return song.audioTracks?.length > 0 ? (
+          <AudioPlayer audioTracks={song.audioTracks} onShare={() => handleShare('audio')} />
+        ) : null;
+      case 'paroles':
+        return <LyricsSection lyrics={song.lyrics} onShare={() => handleShare('paroles')} />;
+      case 'scores':
+        return <ScoresSection scores={song.scores} onShare={() => handleShare('scores')} />;
+      case 'traductions':
+        return <TranslationsSection lyrics={song.lyrics} onShare={() => handleShare('traductions')} />;
+      case 'histoire':
+        return <HistorySection history={song.history} onShare={() => handleShare('histoire')} />;
+      default:
+        return null;
+    }
+  };
+
+  // Focused view mode - show only the specific content
+  if (focusedView && song) {
+    const focusedContent = renderFocusedContent();
+
+    return (
+      <>
+        <main className="flex-1 bg-blue-50 p-6 overflow-auto">
+          <div className="max-w-6xl mx-auto">
+            <BackToFullViewButton slug={slug as string} />
+
+            {focusedView === 'audio' ? (
+              focusedContent
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                {focusedContent}
+              </div>
+            )}
+          </div>
+        </main>
+        <Footer />
+
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          url={generateShareUrl(shareContentType)}
+          contentType={shareContentType}
+        />
+      </>
+    );
+  }
+
   // Always use 2-column grid - content sections max out at half width
   const getGridClass = () => {
     return 'grid-cols-1 md:grid-cols-2';
@@ -165,11 +274,11 @@ export default function SongPage() {
       <main className="flex-1 bg-blue-50 p-6 overflow-auto">
         <div className="max-w-6xl mx-auto">
           {/* Song Header */}
-          <SongHeader song={song} onShare={handleShare} />
+          <SongHeader song={song} onShare={() => handleShare()} />
 
           {/* Audio Player - only show if there are audio tracks */}
           {song.audioTracks?.length > 0 && (
-            <AudioPlayer audioTracks={song.audioTracks} onShare={handleShare} />
+            <AudioPlayer audioTracks={song.audioTracks} onShare={() => handleShare('audio')} />
           )}
 
           {/* Content Container */}
@@ -182,13 +291,13 @@ export default function SongPage() {
               {selectedTabs.filter((tab) => availableTabs.includes(tab)).map((tab) => {
                 switch (tab) {
                   case 'paroles':
-                    return <LyricsSection key={tab} lyrics={song.lyrics} onShare={handleShare} />;
+                    return <LyricsSection key={tab} lyrics={song.lyrics} onShare={() => handleShare('paroles')} />;
                   case 'scores':
-                    return <ScoresSection key={tab} scores={song.scores} onShare={handleShare} />;
+                    return <ScoresSection key={tab} scores={song.scores} onShare={() => handleShare('scores')} />;
                   case 'traductions':
-                    return <TranslationsSection key={tab} lyrics={song.lyrics} onShare={handleShare} />;
+                    return <TranslationsSection key={tab} lyrics={song.lyrics} onShare={() => handleShare('traductions')} />;
                   case 'histoire':
-                    return <HistorySection key={tab} history={song.history} onShare={handleShare} />;
+                    return <HistorySection key={tab} history={song.history} onShare={() => handleShare('histoire')} />;
                   default:
                     return null;
                 }
@@ -203,7 +312,8 @@ export default function SongPage() {
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        url={shareUrl}
+        url={generateShareUrl(shareContentType)}
+        contentType={shareContentType}
       />
     </>
   );

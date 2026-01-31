@@ -2,15 +2,33 @@ import { useState, useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { FocusedViewType } from '@/types/song'
+import { TranslationKey } from '@/data/translations'
 
 interface ShareModalProps {
   isOpen: boolean
   onClose: () => void
   url: string
+  contentType?: FocusedViewType | null
 }
 
-export default function ShareModal({ isOpen, onClose, url }: ShareModalProps) {
+export default function ShareModal({ isOpen, onClose, url, contentType }: ShareModalProps) {
   const { t } = useLanguage()
+
+  // Get the share title based on content type
+  const getShareTitle = () => {
+    if (!contentType) return t('share')
+
+    const contentLabels: Record<FocusedViewType, TranslationKey> = {
+      paroles: 'lyrics',
+      scores: 'sheets',
+      traductions: 'translations',
+      histoire: 'history',
+      audio: 'audio',
+    }
+
+    return `${t('share')} - ${t(contentLabels[contentType])}`
+  }
   const [copied, setCopied] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
 
@@ -70,7 +88,7 @@ export default function ShareModal({ isOpen, onClose, url }: ShareModalProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
-          <h2 className="text-xl font-semibold text-gray-800">{t('share')}</h2>
+          <h2 className="text-xl font-semibold text-gray-800">{getShareTitle()}</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
