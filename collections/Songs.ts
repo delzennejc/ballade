@@ -67,9 +67,9 @@ export const Songs: CollectionConfig = {
       name: 'thumbnailPublicId',
       type: 'text',
       admin: {
-        description: 'Upload thumbnail image to Cloudinary',
+        description: 'Select a template image or upload a custom thumbnail',
         components: {
-          Field: '@/components/payload/CloudinaryImageField#CloudinaryImageField',
+          Field: '@/components/payload/ThumbnailSelectorField#ThumbnailSelectorField',
         },
       },
     },

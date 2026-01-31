@@ -7,7 +7,8 @@ export function useAudioPlayer() {
   const router = useRouter();
   const { slug } = router.query;
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const isLoadingAudio = useRef(false);
+  const loadRequestIdRef = useRef(0);
+  const previousSlugRef = useRef<string | null>(null);
 
   const {
     isPlaying,
@@ -103,6 +104,24 @@ export function useAudioPlayer() {
     };
   }, [router.events]);
 
+  // Reset audio when slug changes to prevent playing previous song's audio
+  useEffect(() => {
+    const currentSlug = typeof slug === 'string' ? slug : null;
+
+    if (previousSlugRef.current !== null && previousSlugRef.current !== currentSlug) {
+      // Slug changed - stop and clear audio immediately
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+        audioRef.current.currentTime = 0;
+      }
+      // Increment request ID to invalidate any pending loads
+      loadRequestIdRef.current += 1;
+    }
+
+    previousSlugRef.current = currentSlug;
+  }, [slug]);
+
   // Load audio when track or version changes
   useEffect(() => {
     const loadAudio = async () => {
@@ -110,11 +129,16 @@ export function useAudioPlayer() {
         return;
       }
 
-      if (isLoadingAudio.current) return;
-      isLoadingAudio.current = true;
+      // Capture current request ID to check if this load is still valid
+      const requestId = ++loadRequestIdRef.current;
 
       try {
         const url = await getAudioUrl(slug, selectedTrack, selectedVersionId);
+
+        // Check if this request is still the latest one
+        if (requestId !== loadRequestIdRef.current) {
+          return; // A newer request was made, ignore this one
+        }
 
         if (url && audioRef.current) {
           const wasPlaying = !audioRef.current.paused;
@@ -127,8 +151,6 @@ export function useAudioPlayer() {
         }
       } catch (error) {
         console.error('Failed to load audio:', error);
-      } finally {
-        isLoadingAudio.current = false;
       }
     };
 

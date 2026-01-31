@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="flex items-center gap-4">
           {/* Facebook */}
           <a
-            href="https://facebook.com"
+            href="https://www.facebook.com/associationballade"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-400 transition-colors"
@@ -23,7 +23,7 @@ export default function Footer() {
 
           {/* Instagram */}
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/association_ballade/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-pink-400 transition-colors"
@@ -36,7 +36,7 @@ export default function Footer() {
 
           {/* LinkedIn */}
           <a
-            href="https://linkedin.com"
+            href="https://fr.linkedin.com/company/association-ballade"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-300 transition-colors"
@@ -49,7 +49,7 @@ export default function Footer() {
 
           {/* YouTube */}
           <a
-            href="https://youtube.com"
+            href="https://www.youtube.com/@associationballade4964"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-red-500 transition-colors"

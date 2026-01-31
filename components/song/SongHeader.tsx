@@ -45,21 +45,24 @@ export default function SongHeader({ song, onShare }: SongHeaderProps) {
 
   // Translate metadata based on current language
   const translatedCountries = metadata.countries.map((c) =>
-    language === 'en' ? translateCountry(c, 'fr', 'en') : c
+    language === "en" ? translateCountry(c, "fr", "en") : c,
   )
   const translatedLanguages = metadata.languages.map((l) =>
-    translateLookup(l, 'languages', language)
+    translateLookup(l, "languages", language),
   )
   const translatedGenres = metadata.genres.map((g) =>
-    translateLookup(g, 'genres', language)
+    translateLookup(g, "genres", language),
   )
   const translatedAudience = metadata.audience.map((a) =>
-    translateLookup(a, 'audiences', language)
+    translateLookup(a, "audiences", language),
   )
   const translatedThemes = metadata.themes.map((t) =>
-    translateLookup(t, 'themes', language)
+    translateLookup(t, "themes", language),
   )
-  const translatedDifficulty = translateDifficulty(metadata.difficulty, language)
+  const translatedDifficulty = translateDifficulty(
+    metadata.difficulty,
+    language,
+  )
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 mb-6">
@@ -77,14 +80,12 @@ export default function SongHeader({ song, onShare }: SongHeaderProps) {
         {/* Title and metadata */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4 mb-5">
-            <h1 className="text-4xl font-bold text-[#18375E]">
-              {song.title}
-            </h1>
+            <h1 className="text-4xl font-bold text-[#18375E]">{song.title}</h1>
             <ActionMenu onShare={onShare} />
           </div>
 
-          {/* Tags - Row 1 */}
-          <div className="flex flex-wrap gap-3 mb-3">
+          {/* Tags */}
+          <div className="flex flex-wrap gap-3 pr-8">
             <TagGroup
               icon={<Globe className="w-5 h-5" />}
               items={translatedCountries}
@@ -105,10 +106,6 @@ export default function SongHeader({ song, onShare }: SongHeaderProps) {
               items={translatedAudience}
               colorClass="bg-orange-50 text-orange-700"
             />
-          </div>
-
-          {/* Tags - Row 2 */}
-          <div className="flex flex-wrap gap-3">
             <TagGroup
               icon={<Mountain className="w-5 h-5" />}
               items={[translatedDifficulty]}

@@ -1,4 +1,5 @@
 import cloudinary from './cloudinary'
+import { isTemplateThumbnail } from '@/data/template-thumbnails'
 
 type ResourceType = 'image' | 'video' | 'raw'
 
@@ -45,8 +46,8 @@ interface CloudinaryAsset {
 export function extractCloudinaryAssets(data: SongData): CloudinaryAsset[] {
   const assets: CloudinaryAsset[] = []
 
-  // Thumbnail (image)
-  if (data.thumbnailPublicId) {
+  // Thumbnail (image) - skip if it's a template (templates should never be deleted)
+  if (data.thumbnailPublicId && !isTemplateThumbnail(data.thumbnailPublicId)) {
     assets.push({ publicId: data.thumbnailPublicId, resourceType: 'image' })
   }
 

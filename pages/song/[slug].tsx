@@ -105,20 +105,15 @@ export default function SongPage() {
     }
   }, [song, selectedVersionId, setSelectedAudio]);
 
-  // Fetch song when slug changes
+  // Fetch song when slug changes - reset state immediately (not in cleanup)
+  // to prevent audio from playing with stale track/version IDs
   useEffect(() => {
     if (typeof slug === 'string') {
-      fetchSongBySlug(slug);
-    }
-  }, [slug, fetchSongBySlug]);
-
-  // Reset state when navigating to a new song
-  useEffect(() => {
-    return () => {
       resetState();
       clearCurrentSong();
-    };
-  }, [slug, resetState, clearCurrentSong]);
+      fetchSongBySlug(slug);
+    }
+  }, [slug, fetchSongBySlug, resetState, clearCurrentSong]);
 
   // Parse and validate view parameter for focused view mode
   useEffect(() => {
