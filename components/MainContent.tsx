@@ -7,7 +7,7 @@ import { useSongsDataStore } from "@/store/useSongsDataStore"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function MainContent() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearchFocused, setIsSearchFocused] = useState(false)
@@ -97,7 +97,7 @@ export default function MainContent() {
               {/* Main Illustration */}
               <div className="relative w-full aspect-[16/9] flex justify-center">
                 <Image
-                  src="/home-image.svg"
+                  src={language === 'en' ? '/home-image-en.svg' : '/home-image.svg'}
                   alt="Association Ballade - Jouer ensemble pour vivre ensemble"
                   fill
                   className="object-contain"
