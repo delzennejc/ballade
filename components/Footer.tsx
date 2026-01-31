@@ -1,13 +1,15 @@
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useFocusedViewStore } from "@/store/useFocusedViewStore"
 
 export default function Footer() {
   const { t } = useLanguage()
+  const focusedView = useFocusedViewStore((state) => state.focusedView)
 
   return (
-    <footer className="w-full bg-slate-700 text-white py-4 px-8">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <footer className={`w-full bg-blue-50 text-slate-700 pt-4 px-4 md:px-8 mt-auto ${focusedView ? 'pb-4' : 'pb-20 md:pb-4'}`}>
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
         {/* Social Media Icons */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 order-1 text-slate-600">
           {/* Facebook */}
           <a
             href="https://www.facebook.com/associationballade"
@@ -62,14 +64,14 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <p className="text-sm text-gray-300">
+        <p className="text-sm text-slate-500 order-3 md:order-2 text-center">
           2025 Association Ballade. {t('allRightsReserved')}.
         </p>
 
         {/* Legal Link */}
         <a
           href="/mentions-legales"
-          className="text-sm text-gray-300 hover:text-white transition-colors"
+          className="text-sm text-slate-500 hover:text-slate-700 transition-colors order-2 md:order-3"
         >
           {t('legalNotice')}
         </a>

@@ -28,7 +28,44 @@ export function useAudioPlayer() {
     setSelectedAudio,
   } = useSongStore();
 
-  const { getAudioUrl } = useSongsDataStore();
+  const { getAudioUrl, currentSong } = useSongsDataStore();
+
+  // Set up Media Session API for lock screen controls
+  useEffect(() => {
+    if ('mediaSession' in navigator && currentSong) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentSong.title,
+        artist: 'Ballade',
+        album: 'Ballade',
+        artwork: [
+          { src: '/ballade-logo.png', sizes: '512x512', type: 'image/png' },
+        ],
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        audioRef.current?.play();
+      });
+
+      navigator.mediaSession.setActionHandler('pause', () => {
+        audioRef.current?.pause();
+      });
+
+      navigator.mediaSession.setActionHandler('seekbackward', () => {
+        if (audioRef.current) {
+          audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10);
+        }
+      });
+
+      navigator.mediaSession.setActionHandler('seekforward', () => {
+        if (audioRef.current) {
+          audioRef.current.currentTime = Math.min(
+            audioRef.current.duration || 0,
+            audioRef.current.currentTime + 10
+          );
+        }
+      });
+    }
+  }, [currentSong]);
 
   // Initialize audio element
   useEffect(() => {

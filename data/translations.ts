@@ -6,7 +6,13 @@ export type TranslationKey =
   | 'searchSong'
   | 'noSongsFound'
   | 'viewSongMap'
+  | 'viewSongList'
   | 'ourSupporters'
+  // Mobile Navigation
+  | 'home'
+  | 'list'
+  | 'map'
+  | 'backToSongList'
   // Sidebar
   | 'songList'
   | 'search'
@@ -84,7 +90,14 @@ export const translations: Record<AppLanguage, Translations> = {
     searchSong: 'Rechercher une chanson',
     noSongsFound: 'Aucune chanson trouvée',
     viewSongMap: 'Voir la carte des chansons',
+    viewSongList: 'Voir la liste des chansons',
     ourSupporters: 'Ils nous soutiennent',
+
+    // Mobile Navigation
+    home: 'Accueil',
+    list: 'Liste',
+    map: 'Carte',
+    backToSongList: 'Retour à la liste de chansons',
 
     // Sidebar
     songList: 'LISTE DES CHANSONS',
@@ -170,7 +183,14 @@ export const translations: Record<AppLanguage, Translations> = {
     searchSong: 'Search for a song',
     noSongsFound: 'No songs found',
     viewSongMap: 'View song map',
+    viewSongList: 'View song list',
     ourSupporters: 'Our supporters',
+
+    // Mobile Navigation
+    home: 'Home',
+    list: 'List',
+    map: 'Map',
+    backToSongList: 'Back to song list',
 
     // Sidebar
     songList: 'SONG LIST',

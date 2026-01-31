@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 import Footer from '@/components/Footer';
 import SongHeader from '@/components/song/SongHeader';
 import AudioPlayer from '@/components/song/AudioPlayer';
@@ -266,7 +268,18 @@ export default function SongPage() {
 
   return (
     <>
-      <main className="flex-1 bg-blue-50 p-6 overflow-auto">
+      {/* Mobile Back Button Header */}
+      <div className="md:hidden bg-blue-50 px-4 py-2">
+        <Link
+          href="/songs"
+          className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          <span className="text-sm">{t('backToSongList')}</span>
+        </Link>
+      </div>
+
+      <main className="flex-1 bg-blue-50 px-4 pb-4 md:p-6 overflow-auto">
         <div className="max-w-6xl mx-auto">
           {/* Song Header */}
           <SongHeader song={song} onShare={() => handleShare()} />

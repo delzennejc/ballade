@@ -12,7 +12,13 @@ export default function CookieConsent() {
       buttonText={t('cookieAccept')}
       declineButtonText={t('cookieDecline')}
       enableDeclineButton
-      setDeclineCookie={false}
+      setDeclineCookie={true}
+      onDecline={() => {
+        // Override the decline cookie with 7-day expiration
+        const date = new Date()
+        date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        document.cookie = `ballade-cookie-consent=false; expires=${date.toUTCString()}; path=/`
+      }}
       cookieName="ballade-cookie-consent"
       style={{
         background: '#1e293b',

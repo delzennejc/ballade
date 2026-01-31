@@ -274,7 +274,7 @@ export default function FilterModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-100 flex items-center justify-center"
       onClick={handleBackdropClick}
     >
       {/* Backdrop with blur */}
@@ -397,7 +397,7 @@ export default function FilterModal({
         </div>
 
         {/* Footer Buttons */}
-        <div className="flex items-center gap-3 p-6 pt-4 border-t border-gray-100">
+        <div className="flex flex-col gap-3 p-6 pt-4 border-t border-gray-100">
           <button
             onClick={clearAllFilters}
             className="flex-1 flex items-center justify-center px-6 py-1 bg-gray-100 rounded-xl text-gray-500 font-medium hover:bg-gray-200 transition-colors whitespace-nowrap"

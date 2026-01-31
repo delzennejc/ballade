@@ -144,6 +144,7 @@ export default function MapModal({ isOpen, onClose, songs }: MapModalProps) {
             country={selectedCountry}
             songs={selectedCountrySongs}
             onClose={handleCloseSidebar}
+            onModalClose={onClose}
           />
 
           {/* Map Container */}

@@ -64,7 +64,7 @@ export default function Dropdown({
     <div ref={dropdownRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 px-4 py-1.5 bg-[#F4F7FA] rounded-lg text-sm font-medium text-[#466387] hover:bg-slate-200 transition-colors"
+        className="flex items-center gap-1 px-4 py-1.5 bg-[#F4F7FA] rounded-lg text-base md:text-sm font-medium text-[#466387] hover:bg-slate-200 transition-colors"
       >
         {isOpen ? (
           <ChevronUp className="w-4 h-4" />
@@ -97,7 +97,7 @@ export default function Dropdown({
                       handleSelect(option.id, option.subOptions?.[0]?.id)
                     }
                   }}
-                  className={`w-full px-4 py-1.5 text-sm hover:bg-slate-50 flex items-center justify-between ${
+                  className={`w-full px-4 py-2 md:py-1.5 text-base md:text-sm hover:bg-slate-50 flex items-center justify-between ${
                     isSelected
                       ? "bg-slate-100 text-slate-700 font-medium"
                       : "text-[#466387]"
@@ -128,7 +128,7 @@ export default function Dropdown({
                         <button
                           key={subOption.id}
                           onClick={() => handleSelect(option.id, subOption.id)}
-                          className={`w-full text-right px-4 py-1.5 text-sm hover:bg-slate-50 flex items-center justify-end gap-2 ${
+                          className={`w-full text-right px-4 py-2 md:py-1.5 text-base md:text-sm hover:bg-slate-50 flex items-center justify-end gap-2 ${
                             isSubSelected
                               ? "bg-slate-100 text-slate-700 font-medium"
                               : "text-[#466387]"

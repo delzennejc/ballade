@@ -77,8 +77,78 @@ export default function AudioPlayer({ audioTracks, onShare }: AudioPlayerProps) 
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-6 py-4 mb-6">
-      <div className="flex items-center gap-5">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-4 md:px-6 py-4 mb-3 md:mb-6">
+      {/* Mobile Layout */}
+      <div className="md:hidden flex flex-col gap-3">
+        {/* Row 1: Time + Progress bar */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-slate-500 tabular-nums w-9">
+            {formattedCurrentTime}
+          </span>
+          <div
+            className="flex-1 h-1.5 bg-slate-200 rounded-full cursor-pointer"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const percentage = ((e.clientX - rect.left) / rect.width) * 100
+              seekByPercentage(percentage)
+            }}
+          >
+            <div
+              className="h-full bg-slate-700 rounded-full transition-all duration-100"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+          <span className="text-sm text-slate-500 tabular-nums w-9 text-right">
+            {formattedDuration}
+          </span>
+        </div>
+
+        {/* Row 2: Play, loop, volume, dropdown, menu */}
+        <div className="flex items-center gap-2">
+          {/* Play/Pause Button */}
+          <button
+            onClick={togglePlayPause}
+            className="w-12 h-12 flex items-center justify-center bg-orange-400 hover:bg-orange-500 rounded-full text-white transition-colors shrink-0"
+          >
+            {isPlaying ? (
+              <Pause className="w-5 h-5" />
+            ) : (
+              <Play className="w-5 h-5 ml-0.5" />
+            )}
+          </button>
+
+          {/* Loop Toggle */}
+          <button
+            onClick={toggleLoop}
+            className={`p-2 rounded-full transition-colors ${
+              isLooping
+                ? "text-orange-500"
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+            title="Boucle"
+          >
+            <Repeat className="w-5 h-5" />
+          </button>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Audio Selection Dropdown */}
+          <Dropdown
+            options={audioOptions}
+            selectedId={selectedTrack}
+            selectedSubId={selectedVersionId}
+            onSelect={handleSelectAudio}
+            displayValue={getDisplayName()}
+          />
+
+          {/* Share Menu */}
+          <ActionMenu onShare={onShare} />
+        </div>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden md:flex items-center gap-5">
         {/* Play/Pause Button */}
         <button
           onClick={togglePlayPause}

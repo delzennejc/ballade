@@ -17,7 +17,11 @@ const emptyFilters: FilterState = {
   difficultyLevel: [],
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  className?: string
+}
+
+export default function Sidebar({ className = '' }: SidebarProps) {
   const { searchQuery, setSearchQuery } = useSidebarStore()
   const { language, setLanguage, t } = useLanguage()
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
@@ -98,7 +102,7 @@ export default function Sidebar() {
   )
 
   return (
-    <aside className="w-[200px] min-h-screen bg-slate-700 flex flex-col py-6">
+    <aside className={`w-[200px] min-h-screen bg-slate-700 flex-col py-6 ${className}`}>
       {/* Logo */}
       <Link href="/" className="flex justify-center mb-4 px-4">
         <Image

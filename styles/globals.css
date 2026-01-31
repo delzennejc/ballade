@@ -17,8 +17,12 @@
   --font-league: "League Spartan", sans-serif;
 }
 
+html {
+  background: #eff6ff; /* blue-50 - matches main content */
+}
+
 body {
-  background: var(--background);
+  background: #eff6ff; /* blue-50 - matches main content */
   color: var(--foreground);
   font-family: "League Spartan", sans-serif;
 }
@@ -29,4 +33,14 @@ body {
 
 .font-league {
   font-family: "League Spartan", sans-serif;
+}
+
+/* Lower Leaflet controls z-index on mobile to stay below the song list sheet */
+@media (max-width: 767px) {
+  .leaflet-control-container,
+  .leaflet-control-container .leaflet-bottom,
+  .leaflet-control-attribution,
+  .leaflet-pane {
+    z-index: 500 !important;
+  }
 }
