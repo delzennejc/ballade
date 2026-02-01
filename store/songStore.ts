@@ -16,6 +16,8 @@ interface SongState {
   selectedTrack: AudioTrack;
   selectedVersionId: string;
 
+  playbackSpeed: number;
+
   // Audio actions
   setIsPlaying: (isPlaying: boolean) => void;
   togglePlayPause: () => void;
@@ -23,6 +25,7 @@ interface SongState {
   setDuration: (duration: number) => void;
   setVolume: (volume: number) => void;
   toggleLoop: () => void;
+  setPlaybackSpeed: (speed: number) => void;
   setSelectedTrack: (track: AudioTrack) => void;
   setSelectedVersionId: (id: string) => void;
   setSelectedAudio: (track: AudioTrack, versionId: string) => void;
@@ -46,6 +49,7 @@ const initialState = {
   duration: 180, // 3 minutes default
   volume: 0.8,
   isLooping: false,
+  playbackSpeed: 1,
   selectedTrack: 'groupe' as AudioTrack,
   selectedVersionId: '',
   lyricsLanguage: 'fr',
@@ -80,6 +84,8 @@ export const useSongStore = create<SongState>((set) => ({
   setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
 
   toggleLoop: () => set((state) => ({ isLooping: !state.isLooping })),
+
+  setPlaybackSpeed: (playbackSpeed) => set({ playbackSpeed }),
 
   setSelectedTrack: (selectedTrack) => set({ selectedTrack }),
 

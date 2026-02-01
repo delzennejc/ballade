@@ -54,8 +54,16 @@ export default function LyricsSection({ lyrics, onShare }: LyricsSectionProps) {
       headerActions={headerActions}
     >
       {/* Lyrics content */}
-      <div className="whitespace-pre-wrap text-slate-700 text-[22px] leading-[32px]">
-        {currentLyrics?.text || 'Paroles non disponibles'}
+      <div className="text-slate-700 text-[22px] leading-[32px]">
+        {currentLyrics?.text ? (
+          currentLyrics.text.split(/\n\s*\n/).map((paragraph, index) => (
+            <p key={index} className="whitespace-pre-wrap mb-3 last:mb-0">
+              {paragraph.trim()}
+            </p>
+          ))
+        ) : (
+          'Paroles non disponibles'
+        )}
       </div>
     </ContentSection>
   );

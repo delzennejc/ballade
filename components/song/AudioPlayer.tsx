@@ -21,6 +21,7 @@ export default function AudioPlayer({ audioTracks, onShare }: AudioPlayerProps) 
     isPlaying,
     volume,
     isLooping,
+    playbackSpeed,
     progressPercentage,
     formattedCurrentTime,
     formattedDuration,
@@ -28,6 +29,7 @@ export default function AudioPlayer({ audioTracks, onShare }: AudioPlayerProps) 
     seekByPercentage,
     setVolume,
     toggleLoop,
+    cyclePlaybackSpeed,
   } = useAudioPlayer()
 
   const { selectedTrack, selectedVersionId, setSelectedAudio } = useSongStore()
@@ -130,6 +132,19 @@ export default function AudioPlayer({ audioTracks, onShare }: AudioPlayerProps) 
             <Repeat className="w-5 h-5" />
           </button>
 
+          {/* Speed Control */}
+          <button
+            onClick={cyclePlaybackSpeed}
+            className={`px-2 py-1 rounded-lg text-sm font-medium transition-colors ${
+              playbackSpeed !== 1
+                ? "text-orange-500 bg-orange-50"
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+            title="Vitesse de lecture"
+          >
+            {playbackSpeed}x
+          </button>
+
           {/* Spacer */}
           <div className="flex-1" />
 
@@ -195,6 +210,19 @@ export default function AudioPlayer({ audioTracks, onShare }: AudioPlayerProps) 
           title="Boucle"
         >
           <Repeat className="w-5 h-5" />
+        </button>
+
+        {/* Speed Control */}
+        <button
+          onClick={cyclePlaybackSpeed}
+          className={`px-2 py-1 rounded-lg text-sm font-medium transition-colors ${
+            playbackSpeed !== 1
+              ? "text-orange-500 bg-orange-50"
+              : "text-slate-400 hover:text-slate-600"
+          }`}
+          title="Vitesse de lecture"
+        >
+          {playbackSpeed}x
         </button>
 
         {/* Volume Control */}

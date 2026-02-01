@@ -83,8 +83,16 @@ export default function TranslationsSection({
       headerActions={headerActions}
     >
       {/* Translation content */}
-      <div className="whitespace-pre-wrap text-slate-700 text-[22px] leading-[32px]">
-        {currentTranslation?.text || 'Traduction non disponible'}
+      <div className="text-slate-700 text-[22px] leading-[32px]">
+        {currentTranslation?.text ? (
+          currentTranslation.text.split(/\n\s*\n/).map((paragraph, index) => (
+            <p key={index} className="whitespace-pre-wrap mb-3 last:mb-0">
+              {paragraph.trim()}
+            </p>
+          ))
+        ) : (
+          'Traduction non disponible'
+        )}
       </div>
     </ContentSection>
   );

@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useSongStore } from '@/store/songStore';
 import { useSongsDataStore } from '@/store/useSongsDataStore';
+import { SoundTouchProcessor, supportsPreservesPitch } from '@/utils/soundTouchProcessor';
 
 export function useAudioPlayer() {
   const router = useRouter();
@@ -9,6 +10,8 @@ export function useAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loadRequestIdRef = useRef(0);
   const previousSlugRef = useRef<string | null>(null);
+  const soundTouchRef = useRef<SoundTouchProcessor | null>(null);
+  const useNativePitchPreservation = useRef<boolean>(true);
 
   const {
     isPlaying,
@@ -16,6 +19,7 @@ export function useAudioPlayer() {
     duration,
     volume,
     isLooping,
+    playbackSpeed,
     selectedTrack,
     selectedVersionId,
     setIsPlaying,
@@ -23,6 +27,7 @@ export function useAudioPlayer() {
     setDuration,
     setVolume,
     toggleLoop,
+    setPlaybackSpeed,
     setSelectedTrack,
     setSelectedVersionId,
     setSelectedAudio,
@@ -42,7 +47,11 @@ export function useAudioPlayer() {
         ],
       });
 
-      navigator.mediaSession.setActionHandler('play', () => {
+      navigator.mediaSession.setActionHandler('play', async () => {
+        // Resume AudioContext if using SoundTouch
+        if (soundTouchRef.current) {
+          await soundTouchRef.current.resume();
+        }
         audioRef.current?.play();
       });
 
@@ -72,6 +81,22 @@ export function useAudioPlayer() {
     if (!audioRef.current) {
       audioRef.current = new Audio();
       audioRef.current.volume = volume;
+
+      // Check if native preservesPitch is supported
+      useNativePitchPreservation.current = supportsPreservesPitch();
+
+      if (useNativePitchPreservation.current) {
+        // Use native pitch preservation
+        audioRef.current.playbackRate = playbackSpeed;
+        audioRef.current.preservesPitch = true;
+      } else {
+        // Use SoundTouch for pitch preservation
+        soundTouchRef.current = new SoundTouchProcessor();
+        soundTouchRef.current.connect(audioRef.current);
+        soundTouchRef.current.setTempo(playbackSpeed);
+        // Keep native playback rate at 1.0 when using SoundTouch
+        audioRef.current.playbackRate = 1.0;
+      }
     }
 
     const audio = audioRef.current;
@@ -108,6 +133,12 @@ export function useAudioPlayer() {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
+
+      // Clean up SoundTouch processor if used
+      if (soundTouchRef.current) {
+        soundTouchRef.current.disconnect();
+        soundTouchRef.current = null;
+      }
     };
   }, [isLooping, setCurrentTime, setDuration, setIsPlaying]);
 
@@ -117,6 +148,22 @@ export function useAudioPlayer() {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
+  // Update playback speed when it changes (native browser time-stretching with pitch preservation)
+  useEffect(() => {
+    if (audioRef.current) {
+      if (useNativePitchPreservation.current) {
+        // Use native pitch preservation
+        audioRef.current.playbackRate = playbackSpeed;
+        audioRef.current.preservesPitch = true;
+      } else if (soundTouchRef.current) {
+        // Use SoundTouch for pitch preservation
+        soundTouchRef.current.setTempo(playbackSpeed);
+        // Keep native playback rate at 1.0, SoundTouch handles the tempo change
+        audioRef.current.playbackRate = 1.0;
+      }
+    }
+  }, [playbackSpeed]);
 
   // Update loop setting when it changes
   useEffect(() => {
@@ -201,10 +248,14 @@ export function useAudioPlayer() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  const togglePlayPause = useCallback(() => {
+  const togglePlayPause = useCallback(async () => {
     if (!audioRef.current) return;
 
     if (audioRef.current.paused) {
+      // Resume AudioContext if using SoundTouch (required by browser autoplay policy)
+      if (soundTouchRef.current) {
+        await soundTouchRef.current.resume();
+      }
       audioRef.current.play().catch(console.error);
     } else {
       audioRef.current.pause();
@@ -230,8 +281,12 @@ export function useAudioPlayer() {
     [seek]
   );
 
-  const restart = useCallback(() => {
+  const restart = useCallback(async () => {
     if (!audioRef.current) return;
+    // Resume AudioContext if using SoundTouch
+    if (soundTouchRef.current) {
+      await soundTouchRef.current.resume();
+    }
     audioRef.current.currentTime = 0;
     audioRef.current.play().catch(console.error);
   }, []);
@@ -243,6 +298,13 @@ export function useAudioPlayer() {
     setCurrentTime(0);
   }, [setCurrentTime]);
 
+  const cyclePlaybackSpeed = useCallback(() => {
+    const speeds = [1, 0.75, 0.5];
+    const currentIndex = speeds.indexOf(playbackSpeed);
+    const nextIndex = (currentIndex + 1) % speeds.length;
+    setPlaybackSpeed(speeds[nextIndex]);
+  }, [playbackSpeed, setPlaybackSpeed]);
+
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return {
@@ -252,6 +314,7 @@ export function useAudioPlayer() {
     duration,
     volume,
     isLooping,
+    playbackSpeed,
     selectedTrack,
     selectedVersionId,
     progressPercentage,
@@ -266,6 +329,7 @@ export function useAudioPlayer() {
     seekByPercentage,
     setVolume,
     toggleLoop,
+    cyclePlaybackSpeed,
     setSelectedTrack,
     setSelectedVersionId,
     setSelectedAudio,
