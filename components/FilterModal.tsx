@@ -309,7 +309,7 @@ export default function FilterModal({
               onToggle={() => toggleSection("geographicOrigin")}
               onSelect={handleSelect}
               colorClass="text-blue-700"
-              selectedBadgeClass="border-2 border-blue-700 text-blue-700 bg-blue-50"
+              selectedBadgeClass="ring-2 ring-inset ring-blue-700 text-blue-700 bg-blue-50"
               countBadgeClass="text-blue-700 bg-blue-100"
               translateOption={(opt) => translateOption(opt, 'geographicOrigin')}
             />
@@ -325,7 +325,7 @@ export default function FilterModal({
               onToggle={() => toggleSection("musicalStyle")}
               onSelect={handleSelect}
               colorClass="text-purple-700"
-              selectedBadgeClass="border-2 border-purple-700 text-purple-700 bg-purple-50"
+              selectedBadgeClass="ring-2 ring-inset ring-purple-700 text-purple-700 bg-purple-50"
               countBadgeClass="text-purple-700 bg-purple-100"
               translateOption={(opt) => translateOption(opt, 'musicalStyle')}
             />
@@ -341,7 +341,7 @@ export default function FilterModal({
               onToggle={() => toggleSection("language")}
               onSelect={handleSelect}
               colorClass="text-green-700"
-              selectedBadgeClass="border-2 border-green-700 text-green-700 bg-green-50"
+              selectedBadgeClass="ring-2 ring-inset ring-green-700 text-green-700 bg-green-50"
               countBadgeClass="text-green-700 bg-green-100"
               translateOption={(opt) => translateOption(opt, 'language')}
             />
@@ -357,7 +357,7 @@ export default function FilterModal({
               onToggle={() => toggleSection("theme")}
               onSelect={handleSelect}
               colorClass="text-rose-700"
-              selectedBadgeClass="border-2 border-rose-700 text-rose-700 bg-rose-50"
+              selectedBadgeClass="ring-2 ring-inset ring-rose-700 text-rose-700 bg-rose-50"
               countBadgeClass="text-rose-700 bg-rose-100"
               translateOption={(opt) => translateOption(opt, 'theme')}
             />
@@ -373,7 +373,7 @@ export default function FilterModal({
               onToggle={() => toggleSection("targetAudience")}
               onSelect={handleSelect}
               colorClass="text-orange-700"
-              selectedBadgeClass="border-2 border-orange-700 text-orange-700 bg-orange-50"
+              selectedBadgeClass="ring-2 ring-inset ring-orange-700 text-orange-700 bg-orange-50"
               countBadgeClass="text-orange-700 bg-orange-100"
               translateOption={(opt) => translateOption(opt, 'targetAudience')}
             />
@@ -389,7 +389,7 @@ export default function FilterModal({
               onToggle={() => toggleSection("difficultyLevel")}
               onSelect={handleSelect}
               colorClass="text-amber-700"
-              selectedBadgeClass="border-2 border-amber-700 text-amber-700 bg-amber-50"
+              selectedBadgeClass="ring-2 ring-inset ring-amber-700 text-amber-700 bg-amber-50"
               countBadgeClass="text-amber-700 bg-amber-100"
               translateOption={(opt) => translateOption(opt, 'difficultyLevel')}
             />
