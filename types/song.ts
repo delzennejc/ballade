@@ -24,8 +24,6 @@ export interface HistoryVersion {
 }
 
 export interface ScoreVersion {
-  language: string;
-  languageCode: string;
   pdf: string;
 }
 

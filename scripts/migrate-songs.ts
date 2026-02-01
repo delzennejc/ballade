@@ -156,19 +156,9 @@ async function migrateSongs() {
       .filter((l): l is NonNullable<typeof l> => l !== null)
 
     // Build scores array with placeholder public IDs
-    const scores = song.scores
-      .map((score: { language: string; languageCode: string; pdf: string }) => {
-        const langId = getLanguageId(score.language, score.languageCode)
-        if (!langId) {
-          console.warn(`    Warning: Language not found for score: ${score.language}`)
-          return null
-        }
-        return {
-          language: langId,
-          pdfPublicId: `songs/${song.slug}/scores/score`,
-        }
-      })
-      .filter((s: unknown): s is NonNullable<typeof s> => s !== null)
+    const scores = song.scores.map((score: { pdf: string }) => ({
+      pdfPublicId: `songs/${song.slug}/scores/score`,
+    }))
 
     // Build history documents array with placeholder public IDs
     const historyDocuments = song.history

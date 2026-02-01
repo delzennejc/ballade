@@ -105,8 +105,6 @@ I will never forget you`,
     ],
     scores: [
       {
-        language: "Français",
-        languageCode: "fr",
         pdf: "/score.pdf",
       },
     ],
@@ -216,8 +214,6 @@ Car je sens que je vais mourir`,
     ],
     scores: [
       {
-        language: "Français",
-        languageCode: "fr",
         pdf: "/score.pdf",
       },
     ],
@@ -315,8 +311,6 @@ Are better than the little ones.`,
     ],
     scores: [
       {
-        language: "Français",
-        languageCode: "fr",
         pdf: "/score.pdf",
       },
     ],

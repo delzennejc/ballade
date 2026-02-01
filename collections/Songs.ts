@@ -178,7 +178,7 @@ export const Songs: CollectionConfig = {
         },
       ],
     },
-    // Scores array - PDF documents per language
+    // Scores array - PDF documents
     {
       name: 'scores',
       type: 'array',
@@ -187,18 +187,9 @@ export const Songs: CollectionConfig = {
         plural: 'Scores',
       },
       admin: {
-        description: 'Add score PDFs in different languages',
-        components: {
-          RowLabel: '@/components/payload/LanguageRowLabel#ScoresRowLabel',
-        },
+        description: 'Add score PDFs',
       },
       fields: [
-        {
-          name: 'language',
-          type: 'relationship',
-          relationTo: 'languages',
-          required: true,
-        },
         {
           name: 'pdfPublicId',
           type: 'text',

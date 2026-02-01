@@ -75,9 +75,7 @@ function transformSong(doc: Record<string, unknown>): Song {
   }))
 
   // Transform scores array
-  const scores: ScoreVersion[] = ((doc.scores as Array<{ language?: { name?: string; code?: string }; pdfPublicId?: string }>) || []).map((score) => ({
-    language: extractName(score.language),
-    languageCode: extractCode(score.language),
+  const scores: ScoreVersion[] = ((doc.scores as Array<{ pdfPublicId?: string }>) || []).map((score) => ({
     pdf: buildCloudinaryUrl(score.pdfPublicId || '', 'raw'),
   }))
 
