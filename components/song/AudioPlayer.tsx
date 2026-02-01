@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import {
   Play,
   Pause,
@@ -19,6 +20,8 @@ interface AudioPlayerProps {
 export default function AudioPlayer({ audioTracks, onShare }: AudioPlayerProps) {
   const {
     isPlaying,
+    currentTime,
+    duration,
     volume,
     isLooping,
     playbackSpeed,
@@ -26,11 +29,42 @@ export default function AudioPlayer({ audioTracks, onShare }: AudioPlayerProps) 
     formattedCurrentTime,
     formattedDuration,
     togglePlayPause,
+    seek,
     seekByPercentage,
     setVolume,
     toggleLoop,
     cyclePlaybackSpeed,
   } = useAudioPlayer()
+
+  // Keyboard shortcuts for seeking (left/right arrow keys)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input field
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return
+      }
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault()
+        e.stopPropagation()
+        // Blur any focused element to prevent highlight
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur()
+        }
+        if (e.key === "ArrowLeft") {
+          seek(Math.max(0, currentTime - 10))
+        } else {
+          seek(Math.min(duration, currentTime + 10))
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown, true)
+    return () => window.removeEventListener("keydown", handleKeyDown, true)
+  }, [currentTime, duration, seek])
 
   const { selectedTrack, selectedVersionId, setSelectedAudio } = useSongStore()
 

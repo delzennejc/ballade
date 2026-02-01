@@ -30,7 +30,7 @@ export default function ContentTabs({ availableTabs }: ContentTabsProps) {
 
   return (
     <div className="mb-3 md:mb-6">
-      <div className="flex flex-wrap items-center gap-1 p-1.5 bg-slate-100 rounded-2xl">
+      <div className="flex flex-wrap items-center gap-1 p-1.5 bg-slate-100 rounded-2xl md:w-fit">
         {tabs.map((tab) => {
           const isSelected = selectedTabs.includes(tab.id)
           return (
