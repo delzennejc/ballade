@@ -115,13 +115,13 @@ export default function MainContent() {
       <div className="flex-1 flex flex-col items-center px-4 md:px-8 pb-8 -mt-3 md:-mt-6">
         <div className="w-full max-w-6xl overflow-hidden rounded-2xl shadow-md">
           {/* Gradient top section with blur */}
-          <div className="h-8 backdrop-blur-sm bg-gradient-to-b from-white/30 to-white/80 top-shadow-md" />
+          <div className="h-8 backdrop-blur-sm bg-linear-to-b from-white/30 to-white/80 top-shadow-md" />
           {/* Main card content */}
           <div className="bg-white p-4 md:p-6 -mt-1">
             {/* Hero Section */}
             <div className="relative w-full max-w-4xl mx-auto">
               {/* Main Illustration */}
-              <div className="relative w-full aspect-[16/9] flex justify-center">
+              <div className="relative w-full aspect-video flex justify-center">
                 <Image
                   src={
                     language === "en" ? "/home-image-en.svg" : "/home-image.svg"
@@ -155,7 +155,7 @@ export default function MainContent() {
                     placeholder={t("searchSong")}
                     className="bg-transparent text-white placeholder-white/80 font-medium outline-none w-48 pt-1"
                   />
-                  <Search className="w-5 h-5 flex-shrink-0 text-white" />
+                  <Search className="w-5 h-5 shrink-0 text-white" />
                 </div>
                 {isSearchFocused && searchQuery.trim() && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
@@ -198,7 +198,7 @@ export default function MainContent() {
                 onClick={() => setIsMapModalOpen(true)}
                 className="w-full max-w-sm md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-200 bg-gray-50 rounded-full text-gray-700 font-medium hover:bg-gray-100 transition-colors leading-none"
               >
-                <Globe className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                <Globe className="w-5 h-5 text-gray-500 hrink-0" />
                 <span className="translate-y-px mt-0.5">
                   {t("viewSongMap")}
                 </span>

@@ -1,37 +1,39 @@
-import { useEffect } from 'react';
-import ContentSection from './ContentSection';
-import Dropdown, { DropdownOption } from '@/components/ui/Dropdown';
-import ActionMenu from '@/components/ui/ActionMenu';
-import { LyricsVersion } from '@/types/song';
-import { useSongStore } from '@/store/songStore';
+import { useEffect } from "react"
+import ContentSection from "./ContentSection"
+import Dropdown, { DropdownOption } from "@/components/ui/Dropdown"
+import ActionMenu from "@/components/ui/ActionMenu"
+import { LyricsVersion } from "@/types/song"
+import { useSongStore } from "@/store/songStore"
 
 interface LyricsSectionProps {
-  lyrics: LyricsVersion[];
-  onShare: () => void;
+  lyrics: LyricsVersion[]
+  onShare: () => void
 }
 
 export default function LyricsSection({ lyrics, onShare }: LyricsSectionProps) {
-  const { lyricsLanguage, setLyricsLanguage } = useSongStore();
+  const { lyricsLanguage, setLyricsLanguage } = useSongStore()
 
   // Use store value if available in lyrics, otherwise fallback to first available
-  const effectiveLanguage = lyrics.find((l) => l.languageCode === lyricsLanguage)
+  const effectiveLanguage = lyrics.find(
+    (l) => l.languageCode === lyricsLanguage,
+  )
     ? lyricsLanguage
-    : lyrics[0]?.languageCode || '';
+    : lyrics[0]?.languageCode || ""
 
   // Sync store with effective language on mount or when lyrics change
   useEffect(() => {
     if (effectiveLanguage && effectiveLanguage !== lyricsLanguage) {
-      setLyricsLanguage(effectiveLanguage);
+      setLyricsLanguage(effectiveLanguage)
     }
-  }, [effectiveLanguage, lyricsLanguage, setLyricsLanguage]);
+  }, [effectiveLanguage, lyricsLanguage, setLyricsLanguage])
 
   const currentLyrics =
-    lyrics.find((l) => l.languageCode === effectiveLanguage) || lyrics[0];
+    lyrics.find((l) => l.languageCode === effectiveLanguage) || lyrics[0]
 
   const languageOptions: DropdownOption[] = lyrics.map((lyric) => ({
     id: lyric.languageCode,
     label: lyric.language,
-  }));
+  }))
 
   const headerActions = (
     <>
@@ -45,7 +47,7 @@ export default function LyricsSection({ lyrics, onShare }: LyricsSectionProps) {
       )}
       <ActionMenu onShare={onShare} />
     </>
-  );
+  )
 
   return (
     <ContentSection
@@ -54,17 +56,15 @@ export default function LyricsSection({ lyrics, onShare }: LyricsSectionProps) {
       headerActions={headerActions}
     >
       {/* Lyrics content */}
-      <div className="text-slate-700 text-[22px] leading-[32px]">
-        {currentLyrics?.text ? (
-          currentLyrics.text.split(/\n\s*\n/).map((paragraph, index) => (
-            <p key={index} className="whitespace-pre-wrap mb-3 last:mb-0">
-              {paragraph.trim()}
-            </p>
-          ))
-        ) : (
-          'Paroles non disponibles'
-        )}
+      <div className="text-slate-700 text-[22px] leading-8">
+        {currentLyrics?.text
+          ? currentLyrics.text.split(/\n\s*\n/).map((paragraph, index) => (
+              <p key={index} className="whitespace-pre-wrap mb-3 last:mb-0">
+                {paragraph.trim()}
+              </p>
+            ))
+          : "Paroles non disponibles"}
       </div>
     </ContentSection>
-  );
+  )
 }
