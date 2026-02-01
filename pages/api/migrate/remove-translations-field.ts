@@ -20,7 +20,7 @@ export default async function handler(
 
     try {
       // Delete all rows from the translations table
-      await db.execute(sql`DELETE FROM songs_translations`)
+      await db.execute(sql`DELETE FROM songs_translations` as any)
 
       return res.status(200).json({
         message: 'Translations data deleted from database',
