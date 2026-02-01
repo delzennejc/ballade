@@ -126,20 +126,20 @@ export default function MapModal({ isOpen, onClose, songs }: MapModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-2 border-b border-gray-100">
           <h2 className="text-xl font-semibold text-gray-800">
-            {t('songMap')}
+            {t("songMap")}
           </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label={t('close')}
+            aria-label={t("close")}
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         {/* Content: Sidebar + Map */}
-        <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar (left) */}
+        <div className="flex-1 relative overflow-hidden">
+          {/* Sidebar (left) - absolute positioned overlay */}
           <CountrySidebar
             country={selectedCountry}
             songs={selectedCountrySongs}
@@ -147,12 +147,8 @@ export default function MapModal({ isOpen, onClose, songs }: MapModalProps) {
             onModalClose={onClose}
           />
 
-          {/* Map Container */}
-          <div
-            className={`flex-1 transition-all duration-300 ${
-              selectedCountry ? "md:w-[70%]" : "w-full"
-            }`}
-          >
+          {/* Map Container - always full width */}
+          <div className="w-full h-full">
             <MapView
               countryMarkers={countryMarkers}
               selectedCountry={selectedCountry}

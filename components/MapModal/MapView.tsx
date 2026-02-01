@@ -94,7 +94,7 @@ export default function MapView({
               click: () => onCountrySelect(marker.country),
             }}
           >
-            <Popup>
+            <Popup autoPan={false}>
               <div className="text-center">
                 <strong className="text-gray-800">{marker.country}</strong>
                 <br />

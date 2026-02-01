@@ -1,11 +1,11 @@
-import { X, Music } from 'lucide-react'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { useState, useRef, useCallback, useEffect } from 'react'
-import { Song } from '@/types/song'
-import { useLanguage } from '@/contexts/LanguageContext'
-import { useLookupStore } from '@/store/useLookupStore'
-import { translateCountry } from '@/data/geography'
+import { X, Music } from "lucide-react"
+import Image from "next/image"
+import { useRouter } from "next/router"
+import { useState, useRef, useCallback, useEffect } from "react"
+import { Song } from "@/types/song"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { useLookupStore } from "@/store/useLookupStore"
+import { translateCountry } from "@/data/geography"
 
 interface CountrySidebarProps {
   country: string | null
@@ -45,12 +45,15 @@ export default function CountrySidebar({
     }
   }, [])
 
-  const handleDragMove = useCallback((clientY: number) => {
-    if (!isDragging) return
-    const delta = clientY - dragStartY.current
-    // Only allow dragging down (positive delta)
-    setDragOffset(Math.max(0, delta))
-  }, [isDragging])
+  const handleDragMove = useCallback(
+    (clientY: number) => {
+      if (!isDragging) return
+      const delta = clientY - dragStartY.current
+      // Only allow dragging down (positive delta)
+      setDragOffset(Math.max(0, delta))
+    },
+    [isDragging],
+  )
 
   const handleDragEnd = useCallback(() => {
     if (!isDragging) return
@@ -72,22 +75,31 @@ export default function CountrySidebar({
   }, [isDragging, dragOffset, onClose])
 
   // Touch event handlers
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    handleDragStart(e.touches[0].clientY)
-  }, [handleDragStart])
+  const onTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      handleDragStart(e.touches[0].clientY)
+    },
+    [handleDragStart],
+  )
 
-  const onTouchMove = useCallback((e: React.TouchEvent) => {
-    handleDragMove(e.touches[0].clientY)
-  }, [handleDragMove])
+  const onTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      handleDragMove(e.touches[0].clientY)
+    },
+    [handleDragMove],
+  )
 
   const onTouchEnd = useCallback(() => {
     handleDragEnd()
   }, [handleDragEnd])
 
   // Mouse event handlers (for desktop testing)
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
-    handleDragStart(e.clientY)
-  }, [handleDragStart])
+  const onMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      handleDragStart(e.clientY)
+    },
+    [handleDragStart],
+  )
 
   useEffect(() => {
     if (!isDragging) return
@@ -100,35 +112,39 @@ export default function CountrySidebar({
       handleDragEnd()
     }
 
-    window.addEventListener('mousemove', onMouseMove)
-    window.addEventListener('mouseup', onMouseUp)
+    window.addEventListener("mousemove", onMouseMove)
+    window.addEventListener("mouseup", onMouseUp)
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener("mousemove", onMouseMove)
+      window.removeEventListener("mouseup", onMouseUp)
     }
   }, [isDragging, handleDragMove, handleDragEnd])
 
   // Handle song click - animate drawer down, close modal, navigate
-  const handleSongClick = useCallback((slug: string) => {
-    // Animate drawer down
-    if (sheetRef.current) {
-      setDragOffset(sheetRef.current.offsetHeight)
-    }
-    // After animation, close modal and navigate
-    setTimeout(() => {
-      onModalClose()
-      router.push(`/song/${slug}`)
-    }, 300)
-  }, [onModalClose, router])
+  const handleSongClick = useCallback(
+    (slug: string) => {
+      // Animate drawer down
+      if (sheetRef.current) {
+        setDragOffset(sheetRef.current.offsetHeight)
+      }
+      // After animation, close modal and navigate
+      setTimeout(() => {
+        onModalClose()
+        router.push(`/song/${slug}`)
+      }, 300)
+    },
+    [onModalClose, router],
+  )
 
   if (!country) return null
 
   // Translate country name if in English mode
-  const displayCountry = language === 'en' ? translateCountry(country, 'fr', 'en') : country
+  const displayCountry =
+    language === "en" ? translateCountry(country, "fr", "en") : country
 
   // Helper to get song count text
-  const songCountText = songs.length === 1 ? t('song') : t('songs')
+  const songCountText = songs.length === 1 ? t("song") : t("songs")
 
   return (
     <>
@@ -136,9 +152,10 @@ export default function CountrySidebar({
       <div
         className={`
           hidden md:flex flex-col
-          w-80 border-r border-gray-100 bg-white
+          absolute left-0 top-0 bottom-0 z-10000
+          w-80 border-r border-gray-100 bg-white shadow-lg
           transform transition-transform duration-300
-          ${country ? 'translate-x-0' : '-translate-x-full'}
+          ${country ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         {/* Header */}
@@ -152,7 +169,7 @@ export default function CountrySidebar({
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label={t('close')}
+            aria-label={t("close")}
           >
             <X className="w-4 h-4 text-gray-500" />
           </button>
@@ -192,7 +209,9 @@ export default function CountrySidebar({
                 </p>
                 {song.metadata?.genres && song.metadata.genres.length > 0 && (
                   <p className="text-sm text-gray-500 truncate">
-                    {song.metadata.genres.map(g => translateLookup(g, 'genres', language)).join(', ')}
+                    {song.metadata.genres
+                      .map((g) => translateLookup(g, "genres", language))
+                      .join(", ")}
                   </p>
                 )}
               </div>
@@ -208,12 +227,14 @@ export default function CountrySidebar({
           md:hidden fixed bottom-0 left-0 right-0 z-1000
           bg-white rounded-t-3xl shadow-lg
           transform
-          ${!isDragging ? 'transition-transform duration-300' : ''}
-          ${country ? 'translate-y-0' : 'translate-y-full'}
+          ${!isDragging ? "transition-transform duration-300" : ""}
+          ${country ? "translate-y-0" : "translate-y-full"}
         `}
         style={{
-          maxHeight: '50vh',
-          transform: country ? `translateY(${dragOffset}px)` : 'translateY(100%)',
+          maxHeight: "50vh",
+          transform: country
+            ? `translateY(${dragOffset}px)`
+            : "translateY(100%)",
         }}
       >
         {/* Handle - draggable area */}
@@ -238,14 +259,17 @@ export default function CountrySidebar({
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label={t('close')}
+            aria-label={t("close")}
           >
             <X className="w-4 h-4 text-gray-500" />
           </button>
         </div>
 
         {/* Song List */}
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(50vh - 80px)' }}>
+        <div
+          className="overflow-y-auto"
+          style={{ maxHeight: "calc(50vh - 80px)" }}
+        >
           {songs.map((song) => (
             <button
               key={song.id}
@@ -275,7 +299,9 @@ export default function CountrySidebar({
                 </p>
                 {song.metadata?.genres && song.metadata.genres.length > 0 && (
                   <p className="text-sm text-gray-500 truncate">
-                    {song.metadata.genres.map(g => translateLookup(g, 'genres', language)).join(', ')}
+                    {song.metadata.genres
+                      .map((g) => translateLookup(g, "genres", language))
+                      .join(", ")}
                   </p>
                 )}
               </div>
