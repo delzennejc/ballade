@@ -397,16 +397,16 @@ export default function FilterModal({
         </div>
 
         {/* Footer Buttons */}
-        <div className="flex flex-col gap-3 p-6 pt-4 border-t border-gray-100">
+        <div className="flex flex-col md:flex-row gap-3 p-6 pt-4 border-t border-gray-100">
           <button
             onClick={clearAllFilters}
-            className="flex-1 flex items-center justify-center px-6 py-1 bg-gray-100 rounded-xl text-gray-500 font-medium hover:bg-gray-200 transition-colors whitespace-nowrap"
+            className="flex-1 flex items-center justify-center px-6 py-2 bg-gray-100 rounded-xl text-gray-500 font-medium hover:bg-gray-200 transition-colors whitespace-nowrap"
           >
             <span className="pt-0.5">{t('clearAllFilters')}</span>
           </button>
           <button
             onClick={handleValidate}
-            className="flex-1 flex items-center justify-center px-6 py-1 bg-blue-500 rounded-xl text-white font-medium hover:bg-blue-600 transition-colors whitespace-nowrap"
+            className="flex-1 flex items-center justify-center px-6 py-2 bg-blue-500 rounded-xl text-white font-medium hover:bg-blue-600 transition-colors whitespace-nowrap"
           >
             <span className="pt-0.5">{t('validateFilters')}</span>
           </button>
