@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
+import Head from "next/head"
 import Image from "next/image"
 import Link from "next/link"
 import { Search, SlidersHorizontal } from "lucide-react"
@@ -19,6 +20,20 @@ export default function SongsPage() {
   const { language, setLanguage, t } = useLanguage()
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const { songs, isLoading, error } = useSongsDataStore()
+
+  // Set body/html background to match the dark theme on mount, revert on unmount
+  useEffect(() => {
+    const originalBodyBg = document.body.style.background
+    const originalHtmlBg = document.documentElement.style.background
+
+    document.body.style.background = "#334155"
+    document.documentElement.style.background = "#334155"
+
+    return () => {
+      document.body.style.background = originalBodyBg
+      document.documentElement.style.background = originalHtmlBg
+    }
+  }, [])
 
   // Filter songs by search query and active filters, sorted alphabetically
   const filteredSongs = useMemo(() => {
@@ -89,7 +104,11 @@ export default function SongsPage() {
   )
 
   return (
-    <main className="min-h-screen bg-slate-700">
+    <>
+      <Head>
+        <meta name="theme-color" content="#334155" />
+      </Head>
+      <main className="min-h-screen bg-slate-700">
       {/* Header with Logo and Language Switcher */}
       <header className="flex items-center justify-between px-4 py-4">
         <Link href="/">
@@ -202,5 +221,6 @@ export default function SongsPage() {
         songs={songs}
       />
     </main>
+    </>
   )
 }
