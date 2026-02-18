@@ -8,6 +8,10 @@ import { useSidebarStore } from "@/store/useSidebarStore"
 import { getRegionByCountry } from "@/data/geography"
 import { useLanguage } from "@/contexts/LanguageContext"
 
+// Remove accents/diacritics from a string for accent-insensitive search
+const deburr = (str: string) =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+
 const emptyFilters: FilterState = {
   geographicOrigin: [],
   musicalStyle: [],
@@ -34,10 +38,10 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const filteredSongs = useMemo(() => {
     return songs
       .filter((song) => {
-        // Search query filter
+        // Search query filter (accent-insensitive)
         if (
           searchQuery &&
-          !song.title.toLowerCase().includes(searchQuery.toLowerCase())
+          !deburr(song.title.toLowerCase()).includes(deburr(searchQuery.toLowerCase()))
         ) {
           return false
         }

@@ -6,6 +6,10 @@ import { MapModal } from "./MapModal"
 import { useSongsDataStore } from "@/store/useSongsDataStore"
 import { useLanguage } from "@/contexts/LanguageContext"
 
+// Remove accents/diacritics from a string for accent-insensitive search
+const deburr = (str: string) =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+
 export default function MainContent() {
   const { t, language, setLanguage } = useLanguage()
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
@@ -17,12 +21,12 @@ export default function MainContent() {
   const filteredSongs = searchQuery.trim()
     ? songs
         .filter((song) =>
-          song.title.toLowerCase().includes(searchQuery.toLowerCase()),
+          deburr(song.title.toLowerCase()).includes(deburr(searchQuery.toLowerCase())),
         )
         .sort((a, b) => {
-          const query = searchQuery.toLowerCase()
-          const aTitle = a.title.toLowerCase()
-          const bTitle = b.title.toLowerCase()
+          const query = deburr(searchQuery.toLowerCase())
+          const aTitle = deburr(a.title.toLowerCase())
+          const bTitle = deburr(b.title.toLowerCase())
           const aIndex = aTitle.indexOf(query)
           const bIndex = bTitle.indexOf(query)
           // Prioritize matches at the start of the title
@@ -31,7 +35,7 @@ export default function MainContent() {
           // Then by position of match
           if (aIndex !== bIndex) return aIndex - bIndex
           // Then alphabetically
-          return aTitle.localeCompare(bTitle)
+          return a.title.localeCompare(b.title, "fr")
         })
         .slice(0, 10)
     : []
