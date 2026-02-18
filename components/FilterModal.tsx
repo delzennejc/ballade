@@ -14,7 +14,6 @@ import { getRegionByCountry, translateRegion } from "@/data/geography"
 import { Song } from "@/types/song"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useLookupStore } from "@/store/useLookupStore"
-import { translateDifficulty } from "@/data/translations"
 
 export interface FilterState {
   geographicOrigin: string[] // Stores region names
@@ -211,7 +210,7 @@ export default function FilterModal({
       case 'targetAudience':
         return translateLookup(option, 'audiences', language)
       case 'difficultyLevel':
-        return translateDifficulty(option, language)
+        return translateLookup(option, 'difficultyLevels', language)
       default:
         return option
     }

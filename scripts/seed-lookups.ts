@@ -38,6 +38,12 @@ const themes = [
   'Éducation',
 ]
 
+const difficultyLevels = [
+  { name: 'Facile', nameEn: 'Easy' },
+  { name: 'Intermédiaire', nameEn: 'Intermediate' },
+  { name: 'Difficile', nameEn: 'Difficult' },
+]
+
 async function seedLookups() {
   console.log('Starting lookup seed...')
 
@@ -138,6 +144,26 @@ async function seedLookups() {
         data: { name },
       })
       console.log(`  Created: ${name}`)
+    } else {
+      console.log(`  Skipped (exists): ${name}`)
+    }
+  }
+
+  // Seed Difficulty Levels
+  console.log('\nSeeding Difficulty Levels...')
+  for (const { name, nameEn } of difficultyLevels) {
+    const existing = await payload.find({
+      collection: 'difficulty-levels',
+      where: { name: { equals: name } },
+      limit: 1,
+    })
+
+    if (existing.docs.length === 0) {
+      await payload.create({
+        collection: 'difficulty-levels',
+        data: { name, nameEn },
+      })
+      console.log(`  Created: ${name} (${nameEn})`)
     } else {
       console.log(`  Skipped (exists): ${name}`)
     }

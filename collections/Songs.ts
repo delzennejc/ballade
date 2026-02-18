@@ -57,7 +57,6 @@ export const Songs: CollectionConfig = {
     {
       name: 'slug',
       type: 'text',
-      required: true,
       unique: true,
       admin: {
         description: 'Auto-generated from title on create, but editable after',
@@ -72,16 +71,6 @@ export const Songs: CollectionConfig = {
           Field: '@/components/payload/ThumbnailSelectorField#ThumbnailSelectorField',
         },
       },
-    },
-    {
-      name: 'difficulty',
-      type: 'select',
-      required: true,
-      options: [
-        { label: 'Facile', value: 'Facile' },
-        { label: 'Intermédiaire', value: 'Intermédiaire' },
-        { label: 'Difficile', value: 'Difficile' },
-      ],
     },
     // Many-to-many relationships to lookup collections
     {
@@ -116,6 +105,11 @@ export const Songs: CollectionConfig = {
       type: 'relationship',
       relationTo: 'themes',
       hasMany: true,
+    },
+    {
+      name: 'difficulty',
+      type: 'relationship',
+      relationTo: 'difficulty-levels',
     },
     // Lyrics array - multiple lyrics in different languages, each with their own translations
     {

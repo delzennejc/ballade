@@ -13,7 +13,6 @@ import { Song } from "@/types/song"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useLookupStore } from "@/store/useLookupStore"
 import { translateCountry } from "@/data/geography"
-import { translateDifficulty } from "@/data/translations"
 import ActionMenu from "@/components/ui/ActionMenu"
 
 interface SongHeaderProps {
@@ -63,8 +62,9 @@ export default function SongHeader({ song, onShare }: SongHeaderProps) {
   const translatedThemes = metadata.themes.map((t) =>
     translateLookup(t, "themes", language),
   )
-  const translatedDifficulty = translateDifficulty(
+  const translatedDifficulty = translateLookup(
     metadata.difficulty,
+    "difficultyLevels",
     language,
   )
 

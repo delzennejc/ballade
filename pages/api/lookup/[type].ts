@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getPayloadClient } from '@/lib/payload'
 
 // Valid lookup types mapped to collection slugs
-const VALID_LOOKUP_TYPES = ['countries', 'languages', 'genres', 'audiences', 'themes', 'track-types'] as const
+const VALID_LOOKUP_TYPES = ['countries', 'languages', 'genres', 'audiences', 'themes', 'track-types', 'difficulty-levels'] as const
 type LookupType = (typeof VALID_LOOKUP_TYPES)[number]
 
 // Response types

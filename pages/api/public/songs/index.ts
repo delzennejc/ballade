@@ -54,7 +54,7 @@ function transformSong(doc: Record<string, unknown>): Song {
     languages,
     genres,
     audience: audiences,
-    difficulty: (doc.difficulty as 'Facile' | 'Intermédiaire' | 'Difficile') || 'Facile',
+    difficulty: extractName(doc.difficulty as { name?: string } | string | number | null | undefined) || '',
     themes,
   }
 
@@ -149,7 +149,7 @@ function buildWhereClause(query: NextApiRequest['query']): Where | undefined {
 
   // Filter by difficulty
   if (query.difficulty) {
-    conditions.push({ difficulty: { equals: query.difficulty as string } })
+    conditions.push({ 'difficulty.name': { equals: query.difficulty as string } })
   }
 
   if (conditions.length === 0) {

@@ -272,17 +272,3 @@ export const translations: Record<AppLanguage, Translations> = {
   },
 }
 
-// Helper to translate difficulty level
-export function translateDifficulty(difficulty: string, language: AppLanguage): string {
-  const difficultyMap: Record<string, TranslationKey> = {
-    'Facile': 'easy',
-    'Intermédiaire': 'intermediate',
-    'Difficile': 'difficult',
-  }
-
-  const key = difficultyMap[difficulty]
-  if (key) {
-    return translations[language][key]
-  }
-  return difficulty
-}

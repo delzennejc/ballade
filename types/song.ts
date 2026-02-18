@@ -43,7 +43,7 @@ export interface SongMetadata {
   languages: string[];
   genres: string[];
   audience: string[];
-  difficulty: 'Facile' | 'Intermédiaire' | 'Difficile';
+  difficulty: string;
   themes: string[];
 }
 

@@ -4,7 +4,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { fr } from '@payloadcms/translations/languages/fr'
 import { Users } from './collections/Users'
 import { Songs } from './collections/Songs'
-import { Languages, Genres, Audiences, Themes, TrackTypes } from './collections/lookups'
+import { Languages, Genres, Audiences, Themes, TrackTypes, DifficultyLevels } from './collections/lookups'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -22,7 +22,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Songs, Languages, Genres, Audiences, Themes, TrackTypes],
+  collections: [Users, Songs, Languages, Genres, Audiences, Themes, TrackTypes, DifficultyLevels],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'your-secret-key-change-in-production',
   typescript: {
