@@ -3,7 +3,7 @@
 import { useField, useFormFields } from '@payloadcms/ui'
 import { useState, useCallback } from 'react'
 
-type CloudinaryPdfFieldProps = {
+type R2PdfFieldProps = {
   path: string
   field: {
     name: string
@@ -18,7 +18,9 @@ type CloudinaryPdfFieldProps = {
   }
 }
 
-export const CloudinaryPdfField = ({ path, field }: CloudinaryPdfFieldProps) => {
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''
+
+export const R2PdfField = ({ path, field }: R2PdfFieldProps) => {
   const { value, setValue } = useField<string>({ path })
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -44,45 +46,37 @@ export const CloudinaryPdfField = ({ path, field }: CloudinaryPdfFieldProps) => 
     setError(null)
 
     try {
-      // Build folder path: /songs/{slug}/sheets/ or /songs/{slug}/history/
+      // Build object key: songs/{slug}/{folderType}/{filename}
       const folder = slug ? `songs/${slug}/${folderType}` : `songs/${folderType}`
+      const key = `${folder}/${Date.now()}.pdf`
 
-      // Get upload signature from API
-      const signResponse = await fetch('/api/cloudinary/sign-upload', {
+      // Get presigned URL from API
+      const presignResponse = await fetch('/api/r2/presign-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folder, resourceType: 'raw' }),
+        body: JSON.stringify({ key, contentType: file.type }),
       })
 
-      if (!signResponse.ok) {
-        throw new Error('Failed to get upload signature')
+      if (!presignResponse.ok) {
+        throw new Error('Failed to get upload URL')
       }
 
-      const { signature, timestamp, cloudName, apiKey, folder: signedFolder } = await signResponse.json()
+      const { uploadUrl, objectKey } = await presignResponse.json()
 
-      // Upload to Cloudinary as raw file
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('signature', signature)
-      formData.append('timestamp', timestamp.toString())
-      formData.append('api_key', apiKey)
-      formData.append('folder', signedFolder)
-      formData.append('resource_type', 'raw')
-
-      const uploadResponse = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      )
+      // Upload directly to R2 via presigned URL
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      })
 
       if (!uploadResponse.ok) {
         throw new Error('Failed to upload PDF')
       }
 
-      const uploadData = await uploadResponse.json()
-      setValue(uploadData.public_id)
+      setValue(objectKey)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -95,16 +89,15 @@ export const CloudinaryPdfField = ({ path, field }: CloudinaryPdfFieldProps) => 
     setError(null)
   }, [setValue])
 
-  // Build the Cloudinary URL for the PDF link
-  const getPdfUrl = (publicId: string) => {
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    if (!cloudName) return null
-    return `https://res.cloudinary.com/${cloudName}/raw/upload/${publicId}`
+  // Build the R2 URL for the PDF link
+  const getPdfUrl = (objectKey: string) => {
+    if (!R2_PUBLIC_URL || !objectKey) return null
+    return `${R2_PUBLIC_URL}/${objectKey}`
   }
 
-  // Extract filename from public_id
-  const getFilename = (publicId: string) => {
-    const parts = publicId.split('/')
+  // Extract filename from object key
+  const getFilename = (objectKey: string) => {
+    const parts = objectKey.split('/')
     return parts[parts.length - 1]
   }
 
@@ -207,4 +200,4 @@ export const CloudinaryPdfField = ({ path, field }: CloudinaryPdfFieldProps) => 
   )
 }
 
-export default CloudinaryPdfField
+export default R2PdfField

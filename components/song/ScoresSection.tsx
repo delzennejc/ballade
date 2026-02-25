@@ -22,9 +22,10 @@ const MIN_SCALE = 0.5;
 const MAX_SCALE = 3;
 const SCALE_STEP = 0.05;
 
-// Proxy Cloudinary URLs to avoid CORS issues
+// Proxy R2 URLs to avoid CORS issues if needed
 function getProxiedUrl(url: string): string {
-  if (url.startsWith('https://res.cloudinary.com/')) {
+  const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';
+  if (r2PublicUrl && url.startsWith(r2PublicUrl)) {
     return `/api/proxy/pdf?url=${encodeURIComponent(url)}`;
   }
   return url;

@@ -3,7 +3,7 @@
 import { useField, useFormFields } from '@payloadcms/ui'
 import { useState, useCallback } from 'react'
 
-type CloudinaryImageFieldProps = {
+type R2ImageFieldProps = {
   path: string
   field: {
     name: string
@@ -15,7 +15,9 @@ type CloudinaryImageFieldProps = {
   }
 }
 
-export const CloudinaryImageField = ({ path, field }: CloudinaryImageFieldProps) => {
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''
+
+export const R2ImageField = ({ path, field }: R2ImageFieldProps) => {
   const { value, setValue } = useField<string>({ path })
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -38,44 +40,38 @@ export const CloudinaryImageField = ({ path, field }: CloudinaryImageFieldProps)
     setError(null)
 
     try {
-      // Build folder path: /songs/{slug}/thumbnails/
+      // Build object key: songs/{slug}/thumbnails/{filename}
       const folder = slug ? `songs/${slug}/thumbnails` : 'songs/thumbnails'
+      const ext = file.name.split('.').pop() || 'jpg'
+      const key = `${folder}/${Date.now()}.${ext}`
 
-      // Get upload signature from API
-      const signResponse = await fetch('/api/cloudinary/sign-upload', {
+      // Get presigned URL from API
+      const presignResponse = await fetch('/api/r2/presign-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folder }),
+        body: JSON.stringify({ key, contentType: file.type }),
       })
 
-      if (!signResponse.ok) {
-        throw new Error('Failed to get upload signature')
+      if (!presignResponse.ok) {
+        throw new Error('Failed to get upload URL')
       }
 
-      const { signature, timestamp, cloudName, apiKey, folder: signedFolder } = await signResponse.json()
+      const { uploadUrl, objectKey } = await presignResponse.json()
 
-      // Upload to Cloudinary
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('signature', signature)
-      formData.append('timestamp', timestamp.toString())
-      formData.append('api_key', apiKey)
-      formData.append('folder', signedFolder)
-
-      const uploadResponse = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      )
+      // Upload directly to R2 via presigned URL
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      })
 
       if (!uploadResponse.ok) {
         throw new Error('Failed to upload image')
       }
 
-      const uploadData = await uploadResponse.json()
-      setValue(uploadData.public_id)
+      setValue(objectKey)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -88,11 +84,10 @@ export const CloudinaryImageField = ({ path, field }: CloudinaryImageFieldProps)
     setError(null)
   }, [setValue])
 
-  // Build the Cloudinary URL for preview
-  const getImageUrl = (publicId: string) => {
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    if (!cloudName) return null
-    return `https://res.cloudinary.com/${cloudName}/image/upload/w_300,h_200,c_fill/${publicId}`
+  // Build the R2 URL for preview
+  const getImageUrl = (objectKey: string) => {
+    if (!R2_PUBLIC_URL || !objectKey) return null
+    return `${R2_PUBLIC_URL}/${objectKey}`
   }
 
   return (
@@ -119,7 +114,7 @@ export const CloudinaryImageField = ({ path, field }: CloudinaryImageFieldProps)
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={getImageUrl(value) || `https://res.cloudinary.com/placeholder/image/upload/w_300,h_200,c_fill/${value}`}
+              src={getImageUrl(value) || ''}
               alt="Thumbnail preview"
               style={{ display: 'block', maxWidth: '300px', height: 'auto' }}
             />
@@ -183,4 +178,4 @@ export const CloudinaryImageField = ({ path, field }: CloudinaryImageFieldProps)
   )
 }
 
-export default CloudinaryImageField
+export default R2ImageField

@@ -1,9 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getPayloadClient } from '@/lib/payload'
 
-// Valid lookup types mapped to collection slugs
-const VALID_LOOKUP_TYPES = ['countries', 'languages', 'genres', 'audiences', 'themes', 'track-types', 'difficulty-levels'] as const
+// Valid lookup types — collection-based lookups + special cases
+const COLLECTION_LOOKUP_TYPES = ['languages', 'genres', 'audiences', 'themes', 'track-types', 'difficulty-levels'] as const
+const VALID_LOOKUP_TYPES = ['countries', ...COLLECTION_LOOKUP_TYPES] as const
 type LookupType = (typeof VALID_LOOKUP_TYPES)[number]
+type CollectionLookupType = (typeof COLLECTION_LOOKUP_TYPES)[number]
 
 // Response types
 interface LookupItem {
@@ -44,10 +46,20 @@ export default async function handler(
   }
 
   try {
+    // Countries is a special case — it's a select field on Songs, not a collection
+    if (type === 'countries') {
+      const { getAllCountries } = await import('@/data/geography')
+      const countries = getAllCountries().map((name) => ({
+        id: name,
+        name,
+      }))
+      return res.status(200).json(countries)
+    }
+
     const payload = await getPayloadClient()
 
     const result = await payload.find({
-      collection: type,
+      collection: type as CollectionLookupType,
       sort: 'name', // Sort alphabetically by name
       limit: 1000, // Get all entries
       depth: 0, // No relationships to populate
@@ -55,17 +67,18 @@ export default async function handler(
 
     // Transform documents to response format
     const items = result.docs.map((doc) => {
+      const d = doc as unknown as Record<string, unknown>
       const item: LookupItem = {
-        id: String(doc.id),
-        name: (doc.name as string) || '',
-        nameEn: (doc.nameEn as string) || undefined,
+        id: String(d.id),
+        name: (d.name as string) || '',
+        nameEn: (d.nameEn as string) || undefined,
       }
 
       // Add code field for languages
       if (type === 'languages') {
         return {
           ...item,
-          code: (doc.code as string) || '',
+          code: (d.code as string) || '',
         } as LanguageLookupItem
       }
 
@@ -73,7 +86,7 @@ export default async function handler(
       if (type === 'track-types') {
         return {
           ...item,
-          slug: (doc.slug as string) || '',
+          slug: (d.slug as string) || '',
         } as TrackTypeLookupItem
       }
 

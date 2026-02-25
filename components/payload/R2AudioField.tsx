@@ -3,7 +3,7 @@
 import { useField, useFormFields } from '@payloadcms/ui'
 import { useState, useCallback, useRef, useEffect } from 'react'
 
-type CloudinaryAudioFieldProps = {
+type R2AudioFieldProps = {
   path: string
   field: {
     name: string
@@ -15,7 +15,9 @@ type CloudinaryAudioFieldProps = {
   }
 }
 
-export const CloudinaryAudioField = ({ path }: CloudinaryAudioFieldProps) => {
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''
+
+export const R2AudioField = ({ path }: R2AudioFieldProps) => {
   const { value, setValue } = useField<string>({ path })
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -50,45 +52,38 @@ export const CloudinaryAudioField = ({ path }: CloudinaryAudioFieldProps) => {
     setError(null)
 
     try {
-      // Build folder path: /songs/{slug}/audio/{track-type}/
+      // Build object key: songs/{slug}/audio/{track-type}/{filename}
       const folder = slug ? `songs/${slug}/audio/${trackType}` : `songs/audio/${trackType}`
+      const ext = file.name.split('.').pop() || 'mp3'
+      const key = `${folder}/${Date.now()}.${ext}`
 
-      // Get upload signature from API
-      const signResponse = await fetch('/api/cloudinary/sign-upload', {
+      // Get presigned URL from API
+      const presignResponse = await fetch('/api/r2/presign-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folder, resourceType: 'video' }), // Cloudinary uses 'video' for audio
+        body: JSON.stringify({ key, contentType: file.type }),
       })
 
-      if (!signResponse.ok) {
-        throw new Error('Failed to get upload signature')
+      if (!presignResponse.ok) {
+        throw new Error('Failed to get upload URL')
       }
 
-      const { signature, timestamp, cloudName, apiKey, folder: signedFolder } = await signResponse.json()
+      const { uploadUrl, objectKey } = await presignResponse.json()
 
-      // Upload to Cloudinary as video (which includes audio)
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('signature', signature)
-      formData.append('timestamp', timestamp.toString())
-      formData.append('api_key', apiKey)
-      formData.append('folder', signedFolder)
-      formData.append('resource_type', 'video')
-
-      const uploadResponse = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      )
+      // Upload directly to R2 via presigned URL
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      })
 
       if (!uploadResponse.ok) {
         throw new Error('Failed to upload audio file')
       }
 
-      const uploadData = await uploadResponse.json()
-      setValue(uploadData.public_id)
+      setValue(objectKey)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -105,16 +100,15 @@ export const CloudinaryAudioField = ({ path }: CloudinaryAudioFieldProps) => {
     }
   }, [setValue])
 
-  // Build the Cloudinary URL for audio streaming
-  const getAudioUrl = (publicId: string) => {
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    if (!cloudName) return null
-    return `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}`
+  // Build the R2 URL for audio streaming
+  const getAudioUrl = (objectKey: string) => {
+    if (!R2_PUBLIC_URL || !objectKey) return null
+    return `${R2_PUBLIC_URL}/${objectKey}`
   }
 
-  // Extract filename from public_id
-  const getFilename = (publicId: string) => {
-    const parts = publicId.split('/')
+  // Extract filename from object key
+  const getFilename = (objectKey: string) => {
+    const parts = objectKey.split('/')
     return parts[parts.length - 1]
   }
 
@@ -224,4 +218,4 @@ export const CloudinaryAudioField = ({ path }: CloudinaryAudioFieldProps) => {
   )
 }
 
-export default CloudinaryAudioField
+export default R2AudioField

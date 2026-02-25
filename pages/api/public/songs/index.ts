@@ -3,11 +3,11 @@ import type { Where } from 'payload'
 import { getPayloadClient } from '@/lib/payload'
 import type { Song, SongMetadata, LyricsVersion, ScoreVersion, HistoryVersion, AudioTrackData } from '@/types/song'
 
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''
 
-function buildCloudinaryUrl(publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): string {
-  if (!publicId) return ''
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${publicId}`
+function buildR2Url(objectKey: string): string {
+  if (!objectKey) return ''
+  return `${R2_PUBLIC_URL}/${objectKey}`
 }
 
 // Helper to extract name from relationship field (handles both populated and ID-only)
@@ -76,14 +76,14 @@ function transformSong(doc: Record<string, unknown>): Song {
 
   // Transform scores array
   const scores: ScoreVersion[] = ((doc.scores as Array<{ pdfPublicId?: string }>) || []).map((score) => ({
-    pdf: buildCloudinaryUrl(score.pdfPublicId || '', 'raw'),
+    pdf: buildR2Url(score.pdfPublicId || ''),
   }))
 
   // Transform history documents array
   const history: HistoryVersion[] = ((doc.historyDocuments as Array<{ language?: { name?: string; code?: string }; pdfPublicId?: string }>) || []).map((hist) => ({
     language: extractName(hist.language),
     languageCode: extractCode(hist.language),
-    pdf: buildCloudinaryUrl(hist.pdfPublicId || '', 'raw'),
+    pdf: buildR2Url(hist.pdfPublicId || ''),
   }))
 
   // Helper to extract slug from track type relationship
@@ -109,7 +109,7 @@ function transformSong(doc: Record<string, unknown>): Song {
     id: String(doc.id),
     slug: (doc.slug as string) || '',
     title: (doc.title as string) || '',
-    thumbnail: buildCloudinaryUrl((doc.thumbnailPublicId as string) || '', 'image'),
+    thumbnail: buildR2Url((doc.thumbnailPublicId as string) || ''),
     metadata,
     lyrics,
     scores,
@@ -184,7 +184,7 @@ export default async function handler(
       limit: 100,
     })
 
-    const songs = result.docs.map((doc) => transformSong(doc as Record<string, unknown>))
+    const songs = result.docs.map((doc) => transformSong(doc as unknown as Record<string, unknown>))
 
     return res.status(200).json(songs)
   } catch (error) {

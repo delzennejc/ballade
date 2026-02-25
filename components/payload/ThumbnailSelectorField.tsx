@@ -16,6 +16,8 @@ type ThumbnailSelectorFieldProps = {
   }
 }
 
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''
+
 export const ThumbnailSelectorField = ({ path, field }: ThumbnailSelectorFieldProps) => {
   const { value, setValue } = useField<string>({ path })
   const [isUploading, setIsUploading] = useState(false)
@@ -25,16 +27,14 @@ export const ThumbnailSelectorField = ({ path, field }: ThumbnailSelectorFieldPr
   const slugField = useFormFields(([fields]) => fields.slug)
   const slug = slugField?.value as string | undefined
 
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-
-  const getImageUrl = (publicId: string, size: number = 100) => {
-    if (!cloudName || !publicId) return null
-    return `https://res.cloudinary.com/${cloudName}/image/upload/w_${size},h_${size},c_fill/${publicId}`
+  const getImageUrl = (objectKey: string) => {
+    if (!R2_PUBLIC_URL || !objectKey) return null
+    return `${R2_PUBLIC_URL}/${objectKey}`
   }
 
-  const getPreviewUrl = (publicId: string) => {
-    if (!cloudName || !publicId) return null
-    return `https://res.cloudinary.com/${cloudName}/image/upload/w_200,h_200,c_fill/${publicId}`
+  const getPreviewUrl = (objectKey: string) => {
+    if (!R2_PUBLIC_URL || !objectKey) return null
+    return `${R2_PUBLIC_URL}/${objectKey}`
   }
 
   const handleTemplateSelect = useCallback(
@@ -61,43 +61,34 @@ export const ThumbnailSelectorField = ({ path, field }: ThumbnailSelectorFieldPr
 
       try {
         const folder = slug ? `songs/${slug}/thumbnails` : 'songs/thumbnails'
+        const ext = file.name.split('.').pop() || 'jpg'
+        const key = `${folder}/${Date.now()}.${ext}`
 
-        const signResponse = await fetch('/api/cloudinary/sign-upload', {
+        const presignResponse = await fetch('/api/r2/presign-upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ folder }),
+          body: JSON.stringify({ key, contentType: file.type }),
         })
 
-        if (!signResponse.ok) {
-          throw new Error('Failed to get upload signature')
+        if (!presignResponse.ok) {
+          throw new Error('Failed to get upload URL')
         }
 
-        const {
-          signature,
-          timestamp,
-          cloudName: cn,
-          apiKey,
-          folder: signedFolder,
-        } = await signResponse.json()
+        const { uploadUrl, objectKey } = await presignResponse.json()
 
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('signature', signature)
-        formData.append('timestamp', timestamp.toString())
-        formData.append('api_key', apiKey)
-        formData.append('folder', signedFolder)
-
-        const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${cn}/image/upload`, {
-          method: 'POST',
-          body: formData,
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          },
         })
 
         if (!uploadResponse.ok) {
           throw new Error('Failed to upload image')
         }
 
-        const uploadData = await uploadResponse.json()
-        setValue(uploadData.public_id)
+        setValue(objectKey)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Upload failed')
       } finally {
@@ -322,7 +313,7 @@ export const ThumbnailSelectorField = ({ path, field }: ThumbnailSelectorFieldPr
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={getImageUrl(template.publicId, 120) || ''}
+                    src={getImageUrl(template.publicId) || ''}
                     alt={template.label}
                     style={{
                       width: '100%',

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { findRemovedAssets, deleteRemovedAssets, extractCloudinaryAssets } from '../lib/cloudinary-cleanup'
+import { findRemovedAssets, deleteRemovedAssets, extractAssets } from '../lib/r2-cleanup'
 import { getAllCountries } from '../data/geography'
 
 export const Songs: CollectionConfig = {
@@ -25,11 +25,11 @@ export const Songs: CollectionConfig = {
     ],
     afterChange: [
       async ({ doc, previousDoc, operation }) => {
-        // Clean up removed Cloudinary assets on update
+        // Clean up removed R2 assets on update
         if (operation === 'update' && previousDoc) {
           const removedAssets = findRemovedAssets(previousDoc, doc)
           if (removedAssets.length > 0) {
-            console.log(`Cleaning up ${removedAssets.length} removed Cloudinary asset(s)`)
+            console.log(`Cleaning up ${removedAssets.length} removed R2 asset(s)`)
             await deleteRemovedAssets(removedAssets)
           }
         }
@@ -38,10 +38,10 @@ export const Songs: CollectionConfig = {
     ],
     afterDelete: [
       async ({ doc }) => {
-        // Clean up all Cloudinary assets when song is deleted
-        const allAssets = extractCloudinaryAssets(doc)
+        // Clean up all R2 assets when song is deleted
+        const allAssets = extractAssets(doc)
         if (allAssets.length > 0) {
-          console.log(`Cleaning up ${allAssets.length} Cloudinary asset(s) from deleted song`)
+          console.log(`Cleaning up ${allAssets.length} R2 asset(s) from deleted song`)
           await deleteRemovedAssets(allAssets)
         }
         return doc
@@ -189,12 +189,12 @@ export const Songs: CollectionConfig = {
           type: 'text',
           required: true,
           admin: {
-            description: 'Upload score PDF to Cloudinary',
+            description: 'Upload score PDF',
             custom: {
               folderType: 'scores',
             },
             components: {
-              Field: '@/components/payload/CloudinaryPdfField#CloudinaryPdfField',
+              Field: '@/components/payload/R2PdfField#R2PdfField',
             },
           },
         },
@@ -226,12 +226,12 @@ export const Songs: CollectionConfig = {
           type: 'text',
           required: true,
           admin: {
-            description: 'Upload history document PDF to Cloudinary',
+            description: 'Upload history document PDF',
             custom: {
               folderType: 'history',
             },
             components: {
-              Field: '@/components/payload/CloudinaryPdfField#CloudinaryPdfField',
+              Field: '@/components/payload/R2PdfField#R2PdfField',
             },
           },
         },
@@ -293,9 +293,9 @@ export const Songs: CollectionConfig = {
               type: 'text',
               required: true,
               admin: {
-                description: 'Upload audio file to Cloudinary',
+                description: 'Upload audio file',
                 components: {
-                  Field: '@/components/payload/CloudinaryAudioField#CloudinaryAudioField',
+                  Field: '@/components/payload/R2AudioField#R2AudioField',
                 },
               },
             },

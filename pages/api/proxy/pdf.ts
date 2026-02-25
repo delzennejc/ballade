@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { url } = req.query
 
@@ -7,9 +9,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Missing URL parameter' })
   }
 
-  // Only allow Cloudinary URLs
-  if (!url.includes('cloudinary.com')) {
-    return res.status(403).json({ error: 'Only Cloudinary URLs are allowed' })
+  // Only allow R2 URLs
+  if (R2_PUBLIC_URL && !url.startsWith(R2_PUBLIC_URL)) {
+    return res.status(403).json({ error: 'Only R2 URLs are allowed' })
   }
 
   try {

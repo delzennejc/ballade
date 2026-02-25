@@ -1,11 +1,11 @@
+import path from 'path'
 import { buildConfig } from 'payload'
-import { postgresAdapter } from '@payloadcms/db-postgres'
+import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { fr } from '@payloadcms/translations/languages/fr'
 import { Users } from './collections/Users'
 import { Songs } from './collections/Songs'
 import { Languages, Genres, Audiences, Themes, TrackTypes, DifficultyLevels } from './collections/lookups'
-import path from 'path'
 import { fileURLToPath } from 'url'
 
 const filename = fileURLToPath(import.meta.url)
@@ -28,9 +28,11 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: postgresAdapter({
-    pool: {
-      connectionString: process.env.DATABASE_URL,
+  db: sqliteAdapter({
+    client: {
+      url: process.env.TURSO_DB_URL!,
+      authToken: process.env.TURSO_DB_TOKEN,
     },
+    blocksAsJSON: true,
   }),
 })

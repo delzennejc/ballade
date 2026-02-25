@@ -7,32 +7,32 @@ export interface TemplateThumbnail {
 export const TEMPLATE_THUMBNAILS: TemplateThumbnail[] = [
   {
     id: 'template-1',
-    publicId: 'templates/thumbnails/image-chanson-1',
+    publicId: 'templates/thumbnails/image-chanson-1.png',
     label: 'Violoniste (Bleu)',
   },
   {
     id: 'template-2',
-    publicId: 'templates/thumbnails/image-chanson-2',
+    publicId: 'templates/thumbnails/image-chanson-2.png',
     label: 'Guitariste (Rose)',
   },
   {
     id: 'template-3',
-    publicId: 'templates/thumbnails/image-chanson-3',
+    publicId: 'templates/thumbnails/image-chanson-3.png',
     label: 'Musicien (Vert)',
   },
   {
     id: 'template-4',
-    publicId: 'templates/thumbnails/image-chanson-4',
+    publicId: 'templates/thumbnails/image-chanson-4.png',
     label: 'Musicien (Orange)',
   },
   {
     id: 'template-5',
-    publicId: 'templates/thumbnails/image-chanson-5',
+    publicId: 'templates/thumbnails/image-chanson-5.png',
     label: 'Musicien (Violet)',
   },
   {
     id: 'template-6',
-    publicId: 'templates/thumbnails/image-chanson-6',
+    publicId: 'templates/thumbnails/image-chanson-6.png',
     label: 'Chanteur (Jaune)',
   },
 ]

@@ -2,11 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getPayloadClient } from '@/lib/payload'
 import type { Song, SongMetadata, LyricsVersion, ScoreVersion, HistoryVersion, AudioTrackData } from '@/types/song'
 
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''
 
-function buildCloudinaryUrl(publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): string {
-  if (!publicId) return ''
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${publicId}`
+function buildR2Url(objectKey: string): string {
+  if (!objectKey) return ''
+  return `${R2_PUBLIC_URL}/${objectKey}`
 }
 
 // Helper to extract name from relationship field (handles both populated and ID-only)
@@ -30,9 +30,7 @@ function extractCode(field: { code?: string } | string | number | null | undefin
 // Transform Payload song document to Song interface
 function transformSong(doc: Record<string, unknown>): Song {
   // Extract metadata from relationship fields
-  const countries = (doc.countries as Array<{ name?: string } | string | number> || [])
-    .map(extractName)
-    .filter(Boolean)
+  const countries = (doc.countries as string[] || []).filter(Boolean)
 
   const languages = (doc.languages as Array<{ name?: string } | string | number> || [])
     .map(extractName)
@@ -55,7 +53,7 @@ function transformSong(doc: Record<string, unknown>): Song {
     languages,
     genres,
     audience: audiences,
-    difficulty: (doc.difficulty as 'Facile' | 'Intermédiaire' | 'Difficile') || 'Facile',
+    difficulty: extractName(doc.difficulty as { name?: string } | string | number | null | undefined) || '',
     themes,
   }
 
@@ -77,14 +75,14 @@ function transformSong(doc: Record<string, unknown>): Song {
 
   // Transform scores array
   const scores: ScoreVersion[] = ((doc.scores as Array<{ pdfPublicId?: string }>) || []).map((score) => ({
-    pdf: buildCloudinaryUrl(score.pdfPublicId || '', 'raw'),
+    pdf: buildR2Url(score.pdfPublicId || ''),
   }))
 
   // Transform history documents array
   const history: HistoryVersion[] = ((doc.historyDocuments as Array<{ language?: { name?: string; code?: string }; pdfPublicId?: string }>) || []).map((hist) => ({
     language: extractName(hist.language),
     languageCode: extractCode(hist.language),
-    pdf: buildCloudinaryUrl(hist.pdfPublicId || '', 'raw'),
+    pdf: buildR2Url(hist.pdfPublicId || ''),
   }))
 
   // Helper to extract slug from track type relationship
@@ -110,7 +108,7 @@ function transformSong(doc: Record<string, unknown>): Song {
     id: String(doc.id),
     slug: (doc.slug as string) || '',
     title: (doc.title as string) || '',
-    thumbnail: buildCloudinaryUrl((doc.thumbnailPublicId as string) || '', 'image'),
+    thumbnail: buildR2Url((doc.thumbnailPublicId as string) || ''),
     metadata,
     lyrics,
     scores,
@@ -149,7 +147,7 @@ export default async function handler(
       return res.status(404).json({ error: 'Song not found' })
     }
 
-    const song = transformSong(result.docs[0] as Record<string, unknown>)
+    const song = transformSong(result.docs[0] as unknown as Record<string, unknown>)
 
     return res.status(200).json(song)
   } catch (error) {

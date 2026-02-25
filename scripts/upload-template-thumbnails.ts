@@ -1,18 +1,21 @@
 import dotenv from 'dotenv'
 import path from 'path'
 import * as fs from 'fs'
-import { v2 as cloudinary } from 'cloudinary'
+import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
 
 // Load env vars before using them
 dotenv.config({ path: path.join(process.cwd(), '.env.local') })
 
-// Configure cloudinary after env vars are loaded
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const client = new S3Client({
+  region: 'auto',
+  endpoint: process.env.R2_ENDPOINT || '',
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+  },
 })
 
+const BUCKET = process.env.R2_BUCKET_NAME || 'ballade'
 const TEMPLATE_FOLDER = 'templates/thumbnails'
 const TEMPLATE_IMAGES = [
   'image-chanson-1.png',
@@ -24,13 +27,13 @@ const TEMPLATE_IMAGES = [
 ]
 
 async function uploadTemplates() {
-  console.log('Uploading template thumbnails to Cloudinary...\n')
+  console.log('Uploading template thumbnails to R2...\n')
 
-  const results: { filename: string; publicId: string }[] = []
+  const results: { filename: string; objectKey: string }[] = []
 
   for (const filename of TEMPLATE_IMAGES) {
     const filePath = path.join(process.cwd(), 'public', filename)
-    const publicId = `${TEMPLATE_FOLDER}/${path.basename(filename, '.png')}`
+    const objectKey = `${TEMPLATE_FOLDER}/${filename}`
 
     if (!fs.existsSync(filePath)) {
       console.log(`  Skipped (not found): ${filename}`)
@@ -40,30 +43,39 @@ async function uploadTemplates() {
     try {
       // Check if already exists
       try {
-        await cloudinary.api.resource(publicId)
-        console.log(`  Skipped (exists): ${publicId}`)
-        results.push({ filename, publicId })
+        await client.send(
+          new HeadObjectCommand({
+            Bucket: BUCKET,
+            Key: objectKey,
+          })
+        )
+        console.log(`  Skipped (exists): ${objectKey}`)
+        results.push({ filename, objectKey })
         continue
       } catch {
         // Doesn't exist, proceed with upload
       }
 
-      const result = await cloudinary.uploader.upload(filePath, {
-        public_id: publicId,
-        overwrite: false,
-        resource_type: 'image',
-      })
-      console.log(`  Uploaded: ${result.public_id}`)
-      results.push({ filename, publicId: result.public_id })
+      const fileBuffer = fs.readFileSync(filePath)
+      await client.send(
+        new PutObjectCommand({
+          Bucket: BUCKET,
+          Key: objectKey,
+          Body: fileBuffer,
+          ContentType: 'image/png',
+        })
+      )
+      console.log(`  Uploaded: ${objectKey}`)
+      results.push({ filename, objectKey })
     } catch (error) {
       console.error(`  Failed: ${filename}`, error)
     }
   }
 
   console.log('\nTemplate upload complete!')
-  console.log('\nPublic IDs for configuration:')
-  for (const { publicId } of results) {
-    console.log(`  ${publicId}`)
+  console.log('\nObject keys for configuration:')
+  for (const { objectKey } of results) {
+    console.log(`  ${objectKey}`)
   }
 
   process.exit(0)

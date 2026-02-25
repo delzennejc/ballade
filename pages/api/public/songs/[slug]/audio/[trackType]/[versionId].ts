@@ -1,12 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getPayloadClient } from '@/lib/payload'
 
-// Cloudinary base URL
-const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ''
 
-function buildCloudinaryAudioUrl(publicId: string): string {
-  if (!publicId) return ''
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/video/upload/${publicId}`
+function buildR2AudioUrl(objectKey: string): string {
+  if (!objectKey) return ''
+  return `${R2_PUBLIC_URL}/${objectKey}`
 }
 
 // Valid track types
@@ -60,7 +59,7 @@ export default async function handler(
       return res.status(404).json({ error: 'Song not found' })
     }
 
-    const song = result.docs[0] as Record<string, unknown>
+    const song = result.docs[0] as unknown as Record<string, unknown>
     const audioTracks = song.audioTracks as Array<{
       trackType?: { slug?: string } | string
       versions?: Array<{
@@ -103,8 +102,8 @@ export default async function handler(
       return res.status(404).json({ error: 'Audio file not found for this version' })
     }
 
-    // Build and return the Cloudinary URL
-    const url = buildCloudinaryAudioUrl(version.audioPublicId)
+    // Build and return the R2 URL
+    const url = buildR2AudioUrl(version.audioPublicId)
 
     return res.status(200).json({ url })
   } catch (error) {
